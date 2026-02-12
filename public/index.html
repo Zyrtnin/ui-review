@@ -40,23 +40,74 @@
 
   /* Environment */
   .env-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .env-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text); cursor: pointer; font-size: 13px; transition: all 0.15s; }
+  .env-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text); cursor: pointer; font-size: 13px; transition: all 0.15s; position: relative; }
   .env-btn:hover { border-color: var(--accent); }
   .env-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .env-btn .remove-env { display: none; position: absolute; top: -6px; right: -6px; width: 16px; height: 16px; border-radius: 50%; background: var(--critical); color: #fff; border: none; font-size: 10px; line-height: 16px; text-align: center; cursor: pointer; }
+  .env-btn:hover .remove-env { display: block; }
+  .env-add-btn { padding: 6px 10px; border: 1px dashed var(--border); border-radius: 6px; background: transparent; color: var(--text-dim); cursor: pointer; font-size: 13px; }
+  .env-add-btn:hover { border-color: var(--accent); color: var(--accent); }
   .url-input { flex: 1; min-width: 200px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text); font-size: 13px; font-family: var(--mono); }
   .url-input:focus { outline: none; border-color: var(--accent); }
 
   /* Pages */
-  .page-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
-  .page-item { display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 4px 0; }
-  .page-item input[type="checkbox"] { accent-color: var(--accent); }
-  .page-item .path { color: var(--text-dim); font-family: var(--mono); font-size: 12px; }
-  .select-controls { display: flex; gap: 12px; margin-bottom: 8px; font-size: 13px; }
+  .pages-toolbar { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; flex-wrap: wrap; }
+  .pages-toolbar input[type="text"] { flex: 1; min-width: 150px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text); font-size: 13px; }
+  .pages-toolbar input[type="text"]:focus { outline: none; border-color: var(--accent); }
+  .discover-btn { padding: 6px 14px; border: 1px solid var(--accent); border-radius: 6px; background: transparent; color: var(--accent); cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; white-space: nowrap; }
+  .discover-btn:hover { background: rgba(108,140,255,0.1); }
+  .discover-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .page-cap { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-dim); white-space: nowrap; }
+  .page-cap select { padding: 4px 6px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface2); color: var(--text); font-size: 12px; }
+  .discover-status { font-size: 12px; color: var(--text-dim); padding: 4px 0; }
+  .select-controls { display: flex; gap: 12px; margin-bottom: 8px; font-size: 13px; align-items: center; }
   .select-controls a { color: var(--accent); cursor: pointer; text-decoration: none; }
   .select-controls a:hover { text-decoration: underline; }
+  .select-controls .page-count { margin-left: auto; color: var(--text-dim); font-size: 12px; }
+  .page-tree { max-height: 400px; overflow-y: auto; }
+  .page-group { margin-bottom: 2px; }
+  .page-group-header { display: flex; align-items: center; gap: 6px; padding: 4px 0; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text); user-select: none; }
+  .page-group-header:hover { color: var(--accent); }
+  .page-group-header .arrow { font-size: 10px; color: var(--text-dim); transition: transform 0.15s; width: 12px; text-align: center; }
+  .page-group-header .arrow.open { transform: rotate(90deg); }
+  .page-group-header .group-count { font-size: 11px; color: var(--text-dim); font-weight: 400; }
+  .page-group-items { display: none; padding-left: 20px; }
+  .page-group-items.open { display: block; }
+  .page-item { display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 3px 0; }
+  .page-item input[type="checkbox"] { accent-color: var(--accent); }
+  .page-item .path { color: var(--text-dim); font-family: var(--mono); font-size: 11px; }
+  .page-item .status-code { font-size: 10px; padding: 0 4px; border-radius: 3px; font-family: var(--mono); }
+  .page-item .status-code.ok { color: var(--success); background: rgba(61,220,132,0.1); }
+  .page-item .status-code.redirect { color: var(--warning); background: var(--warning-bg); }
+  .page-item .status-code.error { color: var(--critical); background: var(--critical-bg); }
+  .page-item.hidden { display: none; }
+  .page-item.ungrouped { padding-left: 20px; }
   .custom-page { margin-top: 8px; display: flex; gap: 8px; }
   .custom-page input { flex: 1; padding: 5px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface2); color: var(--text); font-size: 12px; font-family: var(--mono); }
   .custom-page button { padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface2); color: var(--text); cursor: pointer; font-size: 12px; }
+
+  /* Auth */
+  .auth-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; color: var(--text-dim); user-select: none; }
+  .auth-toggle:hover { color: var(--text); }
+  .auth-toggle .arrow { font-size: 10px; transition: transform 0.15s; }
+  .auth-toggle .arrow.open { transform: rotate(90deg); }
+  .auth-body { display: none; margin-top: 12px; }
+  .auth-body.open { display: block; }
+  .auth-form { display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; font-size: 13px; max-width: 500px; }
+  .auth-form label { color: var(--text-dim); text-align: right; }
+  .auth-form input[type="text"], .auth-form input[type="password"] { padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface2); color: var(--text); font-size: 13px; font-family: var(--mono); }
+  .auth-form input:focus { outline: none; border-color: var(--accent); }
+  .auth-divider { grid-column: 1 / -1; text-align: center; color: var(--text-dim); font-size: 12px; padding: 4px 0; }
+  .auth-actions { display: flex; gap: 8px; margin-top: 10px; align-items: center; }
+  .auth-test-btn { padding: 6px 14px; border: 1px solid var(--accent); border-radius: 6px; background: transparent; color: var(--accent); cursor: pointer; font-size: 13px; transition: all 0.15s; }
+  .auth-test-btn:hover { background: rgba(108,140,255,0.1); }
+  .auth-test-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .auth-clear-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px; background: transparent; color: var(--text-dim); cursor: pointer; font-size: 13px; }
+  .auth-status { font-size: 12px; }
+  .auth-status.ok { color: var(--success); }
+  .auth-status.fail { color: var(--critical); }
+  .auth-upload { grid-column: 1 / -1; }
+  .auth-upload input[type="file"] { font-size: 12px; color: var(--text-dim); }
 
   /* Viewports */
   .viewport-bar { display: flex; gap: 12px; flex-wrap: wrap; }
@@ -72,6 +123,9 @@
   .resume-btn { padding: 10px 20px; border: 1px solid var(--accent); border-radius: 8px; background: transparent; color: var(--accent); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
   .resume-btn:hover { background: rgba(108,140,255,0.1); }
   .resume-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .export-btn { padding: 10px 20px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .export-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .export-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   .allow-private { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-dim); }
   .allow-private input { accent-color: var(--accent); }
 
@@ -121,6 +175,13 @@
 
   .result-card-body { display: none; padding: 0 16px 12px; }
   .result-card-body.open { display: block; }
+  .result-card-content { display: flex; gap: 16px; }
+  .screenshot-panel { flex: 0 0 40%; max-width: 400px; }
+  .screenshot-panel img { width: 100%; border-radius: 4px; cursor: zoom-in; border: 1px solid var(--border); }
+  .screenshot-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 100; cursor: zoom-out; justify-content: center; align-items: center; }
+  .screenshot-overlay.open { display: flex; }
+  .screenshot-overlay img { max-width: 95vw; max-height: 95vh; object-fit: contain; }
+  .issues-panel { flex: 1; min-width: 0; }
   .result-card .summary-text { font-size: 13px; color: var(--text-dim); margin-bottom: 10px; font-style: italic; }
 
   .issue { padding: 10px 0; border-top: 1px solid var(--border); }
@@ -146,10 +207,8 @@
   <!-- Environment -->
   <div class="panel">
     <h2>Environment</h2>
-    <div class="env-bar">
-      <button class="env-btn active" data-url="http://localhost:8081">Localhost</button>
-      <button class="env-btn" data-url="">Staging</button>
-      <button class="env-btn" data-url="">Production</button>
+    <div class="env-bar" id="envBar">
+      <!-- Dynamic env buttons rendered by JS -->
       <input type="text" class="url-input" id="baseUrl" value="http://localhost:8081" placeholder="https://your-app.com">
     </div>
   </div>
@@ -157,14 +216,57 @@
   <!-- Pages -->
   <div class="panel">
     <h2>Pages</h2>
+    <div class="pages-toolbar">
+      <input type="text" id="pageSearch" placeholder="Search pages...">
+      <button class="discover-btn" id="discoverBtn">Discover Pages</button>
+      <div class="page-cap">
+        <label for="pageCap">Cap:</label>
+        <select id="pageCap">
+          <option value="25">25</option>
+          <option value="50" selected>50</option>
+          <option value="100">100</option>
+          <option value="200">200</option>
+        </select>
+      </div>
+    </div>
+    <div class="discover-status" id="discoverStatus"></div>
     <div class="select-controls">
       <a id="selectAll">Select all</a>
       <a id="selectNone">Select none</a>
+      <span class="page-count" id="pageCount"></span>
     </div>
-    <div class="page-grid" id="pageGrid"></div>
+    <div class="page-tree" id="pageTree"></div>
     <div class="custom-page">
       <input type="text" id="customPath" placeholder="/custom-page.html">
       <button id="addCustom">Add</button>
+    </div>
+  </div>
+
+  <!-- Authentication -->
+  <div class="panel">
+    <div class="auth-toggle" id="authToggle">
+      <span class="arrow" id="authArrow">&#9654;</span>
+      <h2 style="margin:0">Authentication (optional)</h2>
+      <span class="auth-status" id="authIndicator"></span>
+    </div>
+    <div class="auth-body" id="authBody">
+      <div class="auth-form">
+        <label for="loginUrl">Login URL:</label>
+        <input type="text" id="loginUrl" placeholder="/login.php" value="/login.php">
+        <label for="authUser">Username:</label>
+        <input type="text" id="authUser" placeholder="admin">
+        <label for="authPass">Password:</label>
+        <input type="password" id="authPass" placeholder="password">
+        <div class="auth-divider">— or upload storageState —</div>
+        <div class="auth-upload">
+          <input type="file" id="storageStateFile" accept=".json">
+        </div>
+      </div>
+      <div class="auth-actions">
+        <button class="auth-test-btn" id="authTestBtn">Test Login</button>
+        <button class="auth-clear-btn" id="authClearBtn">Clear Auth</button>
+        <span class="auth-status" id="authStatus"></span>
+      </div>
     </div>
   </div>
 
@@ -178,8 +280,12 @@
   <div class="actions">
     <button class="run-btn" id="runBtn">Run Review</button>
     <button class="resume-btn" id="resumeBtn" style="display:none">Resume</button>
+    <button class="export-btn" id="exportBtn" style="display:none">Export Report</button>
     <label class="allow-private">
-      <input type="checkbox" id="allowPrivate" checked> Allow private IPs (localhost)
+      <input type="checkbox" id="allowPrivate" checked> Allow private IPs
+    </label>
+    <label class="allow-private">
+      <input type="checkbox" id="watchMode"> Watch mode
     </label>
   </div>
 
@@ -202,6 +308,11 @@
 
   <!-- Results -->
   <div id="results"></div>
+</div>
+
+<!-- Screenshot zoom overlay -->
+<div class="screenshot-overlay" id="screenshotOverlay" onclick="this.classList.remove('open')">
+  <img id="screenshotOverlayImg" src="" alt="Screenshot zoom">
 </div>
 
 <script>
@@ -229,15 +340,17 @@ const VIEWPORTS = {
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 
+const STORAGE_KEY_ENVS = 'ui-review-environments';
+
 // Current report state
 let currentReportId = null;
 let currentResults = {};  // key → result data
 
 // --- Init ---
 async function init() {
-  renderPages();
+  renderPageTree();
   renderViewports();
-  setupEnvButtons();
+  renderEnvironments();
   setupActions();
   checkHealth();
   await loadLatestReport();
@@ -262,41 +375,221 @@ async function checkHealth() {
   }
 }
 
-// --- Pages ---
-function renderPages() {
-  const grid = $('#pageGrid');
-  grid.innerHTML = '';
-  for (const page of DEFAULT_PAGES) {
-    grid.appendChild(createPageCheckbox(page));
+// --- Pages (tree-based) ---
+let allPages = [...DEFAULT_PAGES.map(p => ({ ...p, depth: 0, status: 0, links: 0 }))];
+let isDiscovering = false;
+
+function renderPageTree() {
+  const tree = $('#pageTree');
+  tree.innerHTML = '';
+
+  // Group pages by first path segment
+  const groups = {};
+  const ungrouped = [];
+
+  for (const page of allPages) {
+    const segments = page.path.split('/').filter(Boolean);
+    if (segments.length > 1) {
+      const groupKey = '/' + segments[0] + '/';
+      if (!groups[groupKey]) groups[groupKey] = [];
+      groups[groupKey].push(page);
+    } else {
+      ungrouped.push(page);
+    }
   }
+
+  // Render ungrouped pages first (root-level like /, /login.php)
+  for (const page of ungrouped) {
+    tree.appendChild(createPageItem(page, true));
+  }
+
+  // Render groups
+  const sortedGroups = Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
+  for (const [groupKey, pages] of sortedGroups) {
+    const group = document.createElement('div');
+    group.className = 'page-group';
+    group.dataset.group = groupKey;
+
+    const header = document.createElement('div');
+    header.className = 'page-group-header';
+    header.innerHTML = `
+      <span class="arrow open">&#9654;</span>
+      <input type="checkbox" checked data-group-toggle="${escAttr(groupKey)}">
+      <span>${escHtml(groupKey)}</span>
+      <span class="group-count">(${pages.length})</span>
+    `;
+
+    const items = document.createElement('div');
+    items.className = 'page-group-items open';
+
+    for (const page of pages) {
+      items.appendChild(createPageItem(page, false));
+    }
+
+    // Toggle collapse
+    header.addEventListener('click', (e) => {
+      if (e.target.type === 'checkbox') return;
+      header.querySelector('.arrow').classList.toggle('open');
+      items.classList.toggle('open');
+    });
+
+    // Group checkbox toggles all children
+    const groupCb = header.querySelector('input[type="checkbox"]');
+    groupCb.addEventListener('change', () => {
+      items.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+        cb.checked = groupCb.checked;
+      });
+      updatePageCount();
+    });
+
+    group.appendChild(header);
+    group.appendChild(items);
+    tree.appendChild(group);
+  }
+
+  updatePageCount();
 }
 
-function createPageCheckbox(page) {
+function createPageItem(page, ungrouped) {
   const div = document.createElement('div');
-  div.className = 'page-item';
+  div.className = 'page-item' + (ungrouped ? ' ungrouped' : '');
+  div.dataset.path = page.path;
+  div.dataset.name = page.name;
+
+  let statusBadge = '';
+  if (page.status > 0) {
+    const cls = page.status < 300 ? 'ok' : page.status < 400 ? 'redirect' : 'error';
+    statusBadge = `<span class="status-code ${cls}">${page.status}</span>`;
+  }
+
   div.innerHTML = `
     <input type="checkbox" checked data-path="${escAttr(page.path)}" data-name="${escAttr(page.name)}">
     <span>${escHtml(page.name)}</span>
     <span class="path">${escHtml(page.path)}</span>
+    ${statusBadge}
   `;
+
+  div.querySelector('input').addEventListener('change', updatePageCount);
   return div;
 }
 
+function updatePageCount() {
+  const total = $$('#pageTree input[type="checkbox"][data-path]').length;
+  const checked = $$('#pageTree input[type="checkbox"][data-path]:checked').length;
+  $('#pageCount').textContent = `${checked} of ${total} selected`;
+}
+
+// Search/filter
+$('#pageSearch').addEventListener('input', (e) => {
+  const query = e.target.value.toLowerCase();
+  $$('#pageTree .page-item').forEach(item => {
+    const name = (item.dataset.name || '').toLowerCase();
+    const path = (item.dataset.path || '').toLowerCase();
+    const match = !query || name.includes(query) || path.includes(query);
+    item.classList.toggle('hidden', !match);
+  });
+  // Show groups that have visible children
+  $$('#pageTree .page-group').forEach(group => {
+    const visibleItems = group.querySelectorAll('.page-item:not(.hidden)');
+    group.style.display = visibleItems.length > 0 ? '' : 'none';
+  });
+});
+
+// Select all / none
 $('#selectAll').addEventListener('click', () => {
-  $$('#pageGrid input[type="checkbox"]').forEach(cb => cb.checked = true);
+  $$('#pageTree input[type="checkbox"]').forEach(cb => cb.checked = true);
+  updatePageCount();
 });
 $('#selectNone').addEventListener('click', () => {
-  $$('#pageGrid input[type="checkbox"]').forEach(cb => cb.checked = false);
+  $$('#pageTree input[type="checkbox"]').forEach(cb => cb.checked = false);
+  updatePageCount();
 });
+
+// Add custom page
 $('#addCustom').addEventListener('click', () => {
   const input = $('#customPath');
   let path = input.value.trim();
   if (!path) return;
   if (!path.startsWith('/')) path = '/' + path;
-  const name = path.replace(/^\//, '').replace(/\.\w+$/, '') || 'custom';
-  $('#pageGrid').appendChild(createPageCheckbox({ name, path }));
+  const name = path.replace(/^\//, '').replace(/\.\w+$/, '').replace(/[_-]/g, ' ') || 'custom';
+  allPages.push({ name: name.charAt(0).toUpperCase() + name.slice(1), path, depth: 0, status: 0, links: 0 });
+  renderPageTree();
   input.value = '';
 });
+
+// Discover pages
+$('#discoverBtn').addEventListener('click', startDiscovery);
+
+async function startDiscovery() {
+  if (isDiscovering) return;
+  isDiscovering = true;
+
+  const btn = $('#discoverBtn');
+  const statusEl = $('#discoverStatus');
+  btn.disabled = true;
+  btn.textContent = 'Discovering...';
+
+  const baseUrl = $('#baseUrl').value.trim();
+  const maxPages = parseInt($('#pageCap').value, 10);
+  const allowPrivate = $('#allowPrivate').checked;
+
+  if (!baseUrl) {
+    statusEl.textContent = 'Enter a base URL first';
+    btn.disabled = false;
+    btn.textContent = 'Discover Pages';
+    isDiscovering = false;
+    return;
+  }
+
+  // Clear existing pages and start fresh
+  allPages = [];
+  renderPageTree();
+
+  try {
+    const response = await fetch('/api/discover', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ baseUrl, maxPages, allowPrivate, authState: currentAuthState }),
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        let msg;
+        try { msg = JSON.parse(line.slice(6)); } catch { continue; }
+
+        if (msg.event === 'discover-progress') {
+          statusEl.innerHTML = `<span class="spinner" style="display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:6px;vertical-align:middle;"></span>${escHtml(msg.message)}`;
+        } else if (msg.event === 'discover-page') {
+          allPages.push(msg.page);
+          renderPageTree();
+        } else if (msg.event === 'discover-complete') {
+          statusEl.textContent = `Found ${msg.total} pages via ${msg.source}` +
+            (msg.pagesSkipped > 0 ? ` (${msg.pagesSkipped} skipped, cap reached)` : '');
+        } else if (msg.event === 'discover-error') {
+          statusEl.textContent = `Discovery error: ${msg.message}`;
+        }
+      }
+    }
+  } catch (err) {
+    statusEl.textContent = `Discovery failed: ${err.message}`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Discover Pages';
+  isDiscovering = false;
+}
 
 // --- Viewports ---
 function renderViewports() {
@@ -315,31 +608,186 @@ function renderViewports() {
   }
 }
 
-// --- Environment buttons ---
-function setupEnvButtons() {
-  $$('.env-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      $$('.env-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const url = btn.dataset.url;
-      if (url) {
-        $('#baseUrl').value = url;
-        try {
-          const hostname = new URL(url).hostname;
-          $('#allowPrivate').checked = ['localhost', '127.0.0.1', '::1'].includes(hostname);
-        } catch {}
-      }
+// --- Authentication ---
+let currentAuthState = null;
+
+$('#authToggle').addEventListener('click', () => {
+  $('#authArrow').classList.toggle('open');
+  $('#authBody').classList.toggle('open');
+});
+
+$('#authTestBtn').addEventListener('click', testLogin);
+$('#authClearBtn').addEventListener('click', clearAuth);
+$('#storageStateFile').addEventListener('change', loadStorageState);
+
+async function testLogin() {
+  const btn = $('#authTestBtn');
+  const statusEl = $('#authStatus');
+  const baseUrl = $('#baseUrl').value.trim();
+  const loginUrl = $('#loginUrl').value.trim();
+  const username = $('#authUser').value.trim();
+  const password = $('#authPass').value;
+  const allowPrivate = $('#allowPrivate').checked;
+
+  if (!baseUrl || !loginUrl || !username || !password) {
+    statusEl.textContent = 'Fill in all fields';
+    statusEl.className = 'auth-status fail';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Testing...';
+  statusEl.textContent = '';
+
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ baseUrl, loginUrl, username, password, allowPrivate }),
     });
+    const data = await res.json();
+
+    if (data.ok) {
+      currentAuthState = data.storageState;
+      statusEl.textContent = `Logged in (${data.cookies} cookies, redirected to ${data.redirectedTo})`;
+      statusEl.className = 'auth-status ok';
+      $('#authIndicator').textContent = 'authenticated';
+      $('#authIndicator').className = 'auth-status ok';
+    } else {
+      statusEl.textContent = data.error || 'Login failed';
+      statusEl.className = 'auth-status fail';
+    }
+  } catch (err) {
+    statusEl.textContent = `Error: ${err.message}`;
+    statusEl.className = 'auth-status fail';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Test Login';
+}
+
+function clearAuth() {
+  currentAuthState = null;
+  $('#authStatus').textContent = 'Auth cleared';
+  $('#authStatus').className = 'auth-status';
+  $('#authIndicator').textContent = '';
+  $('#authUser').value = '';
+  $('#authPass').value = '';
+  $('#storageStateFile').value = '';
+}
+
+async function loadStorageState(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const state = JSON.parse(text);
+    if (!state.cookies && !state.origins) {
+      throw new Error('Invalid storageState: missing cookies or origins');
+    }
+    currentAuthState = state;
+    $('#authStatus').textContent = `Loaded ${file.name} (${(state.cookies || []).length} cookies)`;
+    $('#authStatus').className = 'auth-status ok';
+    $('#authIndicator').textContent = 'authenticated';
+    $('#authIndicator').className = 'auth-status ok';
+  } catch (err) {
+    $('#authStatus').textContent = `Invalid file: ${err.message}`;
+    $('#authStatus').className = 'auth-status fail';
+  }
+}
+
+// --- Saved Environments (localStorage) ---
+function getDefaultEnvironments() {
+  return [
+    { name: 'Localhost', url: 'http://localhost:8081' },
+  ];
+}
+
+function loadEnvironments() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY_ENVS);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return getDefaultEnvironments();
+}
+
+function saveEnvironments(envs) {
+  localStorage.setItem(STORAGE_KEY_ENVS, JSON.stringify(envs));
+}
+
+function renderEnvironments() {
+  const bar = $('#envBar');
+  const urlInput = $('#baseUrl');
+
+  // Remove existing buttons (keep the url input)
+  bar.querySelectorAll('.env-btn, .env-add-btn').forEach(el => el.remove());
+
+  const envs = loadEnvironments();
+
+  envs.forEach((env, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'env-btn' + (urlInput.value === env.url ? ' active' : '');
+    btn.dataset.url = env.url;
+    btn.dataset.idx = idx;
+    btn.innerHTML = `${escHtml(env.name)}<span class="remove-env" title="Remove">&times;</span>`;
+
+    btn.addEventListener('click', (e) => {
+      if (e.target.classList.contains('remove-env')) return;
+      bar.querySelectorAll('.env-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      urlInput.value = env.url;
+      try {
+        const hostname = new URL(env.url).hostname;
+        $('#allowPrivate').checked = ['localhost', '127.0.0.1', '::1'].includes(hostname);
+      } catch {}
+    });
+
+    btn.addEventListener('dblclick', () => {
+      const newName = prompt('Environment name:', env.name);
+      if (newName === null) return;
+      const newUrl = prompt('URL:', env.url);
+      if (newUrl === null) return;
+      const envs = loadEnvironments();
+      envs[idx] = { name: newName.trim() || env.name, url: newUrl.trim() };
+      saveEnvironments(envs);
+      renderEnvironments();
+    });
+
+    btn.querySelector('.remove-env').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const envs = loadEnvironments();
+      envs.splice(idx, 1);
+      saveEnvironments(envs);
+      renderEnvironments();
+    });
+
+    bar.insertBefore(btn, urlInput);
   });
 
-  $$('.env-btn').forEach(btn => {
-    btn.addEventListener('dblclick', () => {
-      const newUrl = prompt(`Set URL for "${btn.textContent}":`, btn.dataset.url);
-      if (newUrl !== null) {
-        btn.dataset.url = newUrl;
-      }
-    });
+  // Add button
+  const addBtn = document.createElement('button');
+  addBtn.className = 'env-add-btn';
+  addBtn.textContent = '+ Add';
+  addBtn.addEventListener('click', () => {
+    const name = prompt('Environment name (e.g. "Staging", "Production"):');
+    if (!name) return;
+    const url = prompt('URL:', 'https://');
+    if (!url) return;
+    const envs = loadEnvironments();
+    envs.push({ name: name.trim(), url: url.trim() });
+    saveEnvironments(envs);
+    renderEnvironments();
+    // Select the new one
+    $('#baseUrl').value = url.trim();
+    bar.querySelectorAll('.env-btn').forEach(b => b.classList.remove('active'));
+    const last = bar.querySelectorAll('.env-btn');
+    if (last.length) last[last.length - 1].classList.add('active');
   });
+  bar.insertBefore(addBtn, urlInput);
 }
 
 // --- Report persistence ---
@@ -365,6 +813,7 @@ async function loadReportById(id) {
     renderFullReport(report);
     updateReportInfo(report);
     updateResumeButton(report);
+    updateExportButton();
   } catch { /* failed to load */ }
 }
 
@@ -431,6 +880,11 @@ function updateResumeButton(report) {
   }
 }
 
+function updateExportButton() {
+  const btn = $('#exportBtn');
+  btn.style.display = Object.keys(currentResults).length > 0 ? '' : 'none';
+}
+
 // --- History ---
 $('#historyToggle').addEventListener('click', async () => {
   const panel = $('#historyPanel');
@@ -471,15 +925,16 @@ $('#historyToggle').addEventListener('click', async () => {
   } catch {}
 });
 
-// --- Run / Resume ---
+// --- Run / Resume / Export ---
 function setupActions() {
   $('#runBtn').addEventListener('click', () => startReview(false));
   $('#resumeBtn').addEventListener('click', () => startReview(true));
+  $('#exportBtn').addEventListener('click', exportReport);
 }
 
 function getSelectedPages() {
   const pages = [];
-  $$('#pageGrid input[type="checkbox"]:checked').forEach(cb => {
+  $$('#pageTree input[type="checkbox"][data-path]:checked').forEach(cb => {
     pages.push({ name: cb.dataset.name, path: cb.dataset.path });
   });
   return pages;
@@ -491,6 +946,102 @@ function getSelectedViewports() {
     vps.push(cb.dataset.viewport);
   });
   return vps;
+}
+
+// --- Export ---
+function exportReport() {
+  if (Object.keys(currentResults).length === 0) return;
+
+  const allIssues = [];
+  for (const [key, result] of Object.entries(currentResults)) {
+    if (result._raw) continue;
+    const [page, viewport] = key.split('::');
+    for (const issue of (result.issues || [])) {
+      allIssues.push({ ...issue, page, viewport });
+    }
+  }
+
+  // Group by severity
+  const bySeverity = { critical: [], warning: [], suggestion: [] };
+  for (const issue of allIssues) {
+    (bySeverity[issue.severity] || []).push(issue);
+  }
+
+  const date = new Date().toISOString().split('T')[0];
+  const baseUrl = $('#baseUrl').value.trim();
+  let md = `# UI Review Report\n\n`;
+  md += `**URL:** ${baseUrl}\n`;
+  md += `**Date:** ${date}\n`;
+  md += `**Report ID:** ${currentReportId || 'N/A'}\n`;
+  md += `**Total Issues:** ${allIssues.length}`;
+  if (bySeverity.critical.length) md += ` | ${bySeverity.critical.length} critical`;
+  if (bySeverity.warning.length) md += ` | ${bySeverity.warning.length} warning`;
+  if (bySeverity.suggestion.length) md += ` | ${bySeverity.suggestion.length} suggestion`;
+  md += `\n\n---\n\n`;
+
+  // Summaries per page
+  const pageKeys = [...new Set(Object.keys(currentResults).map(k => k.split('::')[0]))];
+  md += `## Page Summaries\n\n`;
+  for (const pageName of pageKeys) {
+    const pageResults = Object.entries(currentResults).filter(([k]) => k.startsWith(pageName + '::'));
+    for (const [key, result] of pageResults) {
+      const vp = key.split('::')[1];
+      if (result.summary && !result._raw) {
+        md += `- **${pageName}** (${vp}): ${result.summary}\n`;
+      }
+    }
+  }
+  md += `\n`;
+
+  // Screenshots listing
+  const screenshotRefs = [];
+  for (const [key, result] of Object.entries(currentResults)) {
+    if (result.screenshot) {
+      const [page, viewport] = key.split('::');
+      screenshotRefs.push({ page, viewport, path: result.screenshot });
+    }
+  }
+
+  for (const [severity, label] of [['critical', 'Critical'], ['warning', 'Warning'], ['suggestion', 'Suggestion']]) {
+    const issues = bySeverity[severity];
+    if (!issues.length) continue;
+
+    md += `## ${label} (${issues.length})\n\n`;
+
+    for (const issue of issues) {
+      md += `- [ ] **[${issue.page} - ${issue.viewport}]** ${issue.description}\n`;
+      if (issue.location) md += `  - Location: ${issue.location}\n`;
+      if (issue.category) md += `  - Category: ${issue.category}\n`;
+      if (issue.recommendation) md += `  - Fix: ${issue.recommendation}\n`;
+    }
+    md += `\n`;
+  }
+
+  if (screenshotRefs.length > 0) {
+    md += `## Screenshots\n\n`;
+    md += `Screenshots saved in report directory: \`reports/${currentReportId}/screenshots/\`\n\n`;
+    for (const ref of screenshotRefs) {
+      md += `- **${ref.page}** (${ref.viewport}): \`${ref.path}\`\n`;
+    }
+    md += `\n`;
+  }
+
+  // Count raw results
+  const rawCount = Object.values(currentResults).filter(r => r._raw).length;
+  if (rawCount > 0) {
+    md += `## Unparsed Results (${rawCount})\n\n`;
+    md += `${rawCount} page/viewport combinations returned unstructured text that could not be converted to issues. Re-run these pages for structured results.\n\n`;
+  }
+
+  md += `---\n*Generated by [ui-review](https://github.com/Zyrtnin/ui-review)*\n`;
+
+  // Download as .md file
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `ui-review-${date}-${currentReportId || 'report'}.md`;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 async function startReview(resume) {
@@ -530,7 +1081,8 @@ async function startReview(resume) {
     updateSummaryBadges(totals);
   }
 
-  const body = { baseUrl, pages, viewports, allowPrivate };
+  const watchMode = $('#watchMode').checked;
+  const body = { baseUrl, pages, viewports, allowPrivate, watchMode, authState: currentAuthState };
   if (resume && currentReportId) {
     body.reportId = currentReportId;
     // skipCompleted is built server-side from existing results
@@ -593,6 +1145,7 @@ async function startReview(resume) {
               const report = await res.json();
               updateReportInfo(report);
               updateResumeButton(report);
+              updateExportButton();
             } catch {}
           }
         }
@@ -666,6 +1219,25 @@ function renderResultCard(msg, container) {
     `;
   }
 
+  // Build screenshot panel if available
+  const screenshotUrl = data.screenshot && currentReportId
+    ? `/api/reports/${currentReportId}/${data.screenshot}`
+    : null;
+  const screenshotPanel = screenshotUrl
+    ? `<div class="screenshot-panel">
+        <img src="${escAttr(screenshotUrl)}" alt="Screenshot of ${escAttr(msg.page)}" loading="lazy"
+             onclick="document.getElementById('screenshotOverlayImg').src=this.src; document.getElementById('screenshotOverlay').classList.add('open');">
+       </div>`
+    : '';
+
+  // Build issues panel content
+  const issuesContent = `
+    ${summary}
+    ${issues.map(renderIssue).join('')}
+    ${!isRaw && issues.length === 0 ? '<div style="color:var(--success);font-size:13px;padding:8px 0;">No issues found!</div>' : ''}
+    ${rawContent}
+  `;
+
   card.innerHTML = `
     <div class="result-card-header" onclick="this.querySelector('.arrow').classList.toggle('open'); this.nextElementSibling.classList.toggle('open')">
       <span class="arrow">&#9654;</span>
@@ -676,10 +1248,12 @@ function renderResultCard(msg, container) {
       ${badges}
     </div>
     <div class="result-card-body">
-      ${summary}
-      ${issues.map(renderIssue).join('')}
-      ${!isRaw && issues.length === 0 ? '<div style="color:var(--success);font-size:13px;padding:8px 0;">No issues found!</div>' : ''}
-      ${rawContent}
+      <div class="result-card-content">
+        ${screenshotPanel}
+        <div class="issues-panel">
+          ${issuesContent}
+        </div>
+      </div>
     </div>
   `;
   container.appendChild(card);
@@ -736,6 +1310,13 @@ function escHtml(s) {
 function escAttr(s) {
   return (s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
+
+// Close screenshot overlay on Escape
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.getElementById('screenshotOverlay').classList.remove('open');
+  }
+});
 
 init();
 </script>

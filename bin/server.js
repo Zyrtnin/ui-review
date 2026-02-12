@@ -9,6 +9,7 @@ import { healthCheck, prewarm, analyze, parseVlmJson } from '../lib/ollama.js';
 import { captureScreenshot } from '../lib/capture.js';
 import { loadPrompt } from '../lib/prompts.js';
 import { sanitizeResult } from '../lib/report.js';
+import { discoverPages } from '../lib/discover.js';
 
 const PORT = parseInt(process.argv.find((_, i, a) => a[i - 1] === '--port') || '3000', 10);
 const PUBLIC_DIR = join(import.meta.dirname, '..', 'public');
@@ -48,6 +49,11 @@ function resultKey(pageName, viewportName) {
   return `${pageName}::${viewportName}`;
 }
 
+/** Sanitize a name for use as a filename. */
+function sanitizeName(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').slice(0, 60);
+}
+
 /** Save report to disk. */
 function saveReport(report) {
   const filePath = join(REPORTS_DIR, `${report.id}.json`);
@@ -85,6 +91,111 @@ function listReports() {
     .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 }
 
+/** Execute a login flow using Playwright and return storageState. */
+async function executeLogin({ baseUrl, loginUrl, username, password, allowPrivate = false }) {
+  const { chromium } = await import('playwright');
+
+  const fullLoginUrl = baseUrl.replace(/\/$/, '') + loginUrl;
+  const browser = await chromium.launch({ headless: true });
+
+  try {
+    const context = await browser.newContext({ ignoreHTTPSErrors: true });
+    const page = await context.newPage();
+
+    await page.goto(fullLoginUrl, { waitUntil: 'networkidle', timeout: 15000 });
+
+    // Auto-detect form fields
+    const usernameField = await page.$('input[type="text"], input[name*="user"], input[name*="email"], input[id*="user"], input[name*="login"]');
+    const passwordField = await page.$('input[type="password"]');
+    const submitButton = await page.$('button[type="submit"], input[type="submit"]');
+
+    if (!usernameField || !passwordField) {
+      throw new Error('Could not find username/password fields on login page');
+    }
+
+    await usernameField.fill(username);
+    await passwordField.fill(password);
+
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'networkidle', timeout: 15000 }).catch(() => {}),
+      submitButton ? submitButton.click() : page.keyboard.press('Enter'),
+    ]);
+
+    // Check if still on login page (login failed)
+    const currentUrl = page.url();
+    const currentPath = new URL(currentUrl).pathname;
+    if (currentPath === loginUrl || currentPath === loginUrl.replace(/\/$/, '')) {
+      const errorText = await page.$eval('.error, .alert-danger, .alert-error, [class*="error"]', el => el.textContent).catch(() => '');
+      throw new Error(`Login failed${errorText ? ': ' + errorText.trim() : ' — still on login page'}`);
+    }
+
+    const state = await context.storageState();
+    const cookies = (state.cookies || []).length;
+    await context.close();
+
+    return { storageState: state, redirectedTo: currentPath, cookies };
+  } finally {
+    await browser.close().catch(() => {});
+  }
+}
+
+/** Discover pages on a site, streaming SSE events. */
+async function runDiscover(req, res) {
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive',
+    'Access-Control-Allow-Origin': '*',
+  });
+
+  let body;
+  try {
+    body = await readBody(req);
+  } catch {
+    sendEvent(res, 'error', { message: 'Invalid request body' });
+    res.end();
+    return;
+  }
+
+  const { baseUrl, maxPages = 50, allowPrivate = false, authState } = body;
+
+  if (!baseUrl) {
+    sendEvent(res, 'error', { message: 'baseUrl is required' });
+    res.end();
+    return;
+  }
+
+  const controller = new AbortController();
+  req.on('close', () => controller.abort());
+
+  try {
+    const result = await discoverPages({
+      baseUrl,
+      maxPages,
+      allowPrivate,
+      storageState: authState || undefined,
+      signal: controller.signal,
+      onProgress: (message) => {
+        sendEvent(res, 'discover-progress', { message });
+      },
+      onPage: (page) => {
+        sendEvent(res, 'discover-page', { page });
+      },
+    });
+
+    sendEvent(res, 'discover-complete', {
+      total: result.pages.length,
+      source: result.source,
+      totalLinksFound: result.totalLinksFound,
+      pagesSkipped: result.pagesSkipped,
+    });
+  } catch (err) {
+    sendEvent(res, 'discover-error', { message: err.message });
+  }
+
+  res.end();
+}
+
 /** Run reviews for pages × viewports, streaming SSE events. */
 async function runReview(req, res) {
   res.writeHead(200, {
@@ -110,6 +221,8 @@ async function runReview(req, res) {
     allowPrivate = false,
     reportId,       // Resume existing report
     skipCompleted,  // Array of "page::viewport" keys to skip
+    watchMode = false,
+    authState,
   } = body;
 
   if (!baseUrl || !pages.length) {
@@ -232,13 +345,22 @@ async function runReview(req, res) {
             viewport,
             config,
             allowPrivate,
+            headless: !watchMode,
+            storageState: authState || undefined,
           });
+
+          // Save screenshot to disk
+          const screenshotDir = join(REPORTS_DIR, report.id, 'screenshots');
+          mkdirSync(screenshotDir, { recursive: true });
+          const screenshotFilename = `${sanitizeName(page.name)}_${viewport.name}.png`;
+          writeFileSync(join(screenshotDir, screenshotFilename), buffer);
+          const screenshotPath = `screenshots/${screenshotFilename}`;
 
           sendEvent(res, 'progress', {
             status: 'captured',
             page: pageLabel,
             viewport: viewport.name,
-            message: `Screenshot ${(buffer.length / 1024).toFixed(0)}KB`,
+            message: `Screenshot ${(buffer.length / 1024).toFixed(0)}KB — saved`,
           });
 
           // Analyze
@@ -297,7 +419,8 @@ async function runReview(req, res) {
             } catch { /* keep original _raw result */ }
           }
 
-          // Store in report
+          // Store in report (include screenshot reference)
+          result.screenshot = screenshotPath;
           report.results[key] = result;
           delete report.errors[key];
 
@@ -415,6 +538,46 @@ const server = createServer(async (req, res) => {
       res.writeHead(404, JSON_HEADERS);
       res.end(JSON.stringify({ error: 'Report not found' }));
     }
+    return;
+  }
+
+  // GET /api/reports/:id/screenshots/:filename
+  const screenshotMatch = url.pathname.match(/^\/api\/reports\/([a-z0-9-]+)\/screenshots\/([a-zA-Z0-9_.-]+\.png)$/);
+  if (screenshotMatch && req.method === 'GET') {
+    const filePath = join(REPORTS_DIR, screenshotMatch[1], 'screenshots', screenshotMatch[2]);
+    if (existsSync(filePath)) {
+      res.writeHead(200, { 'Content-Type': 'image/png', 'Cache-Control': 'public, max-age=86400' });
+      res.end(readFileSync(filePath));
+    } else {
+      res.writeHead(404);
+      res.end('Screenshot not found');
+    }
+    return;
+  }
+
+  if (url.pathname === '/api/auth/login' && req.method === 'POST') {
+    try {
+      const body = await readBody(req);
+      const { baseUrl, loginUrl, username, password, allowPrivate = false } = body;
+
+      if (!baseUrl || !loginUrl || !username || !password) {
+        res.writeHead(400, JSON_HEADERS);
+        res.end(JSON.stringify({ ok: false, error: 'All fields are required' }));
+        return;
+      }
+
+      const result = await executeLogin({ baseUrl, loginUrl, username, password, allowPrivate });
+      res.writeHead(200, JSON_HEADERS);
+      res.end(JSON.stringify({ ok: true, ...result }));
+    } catch (err) {
+      res.writeHead(200, JSON_HEADERS);
+      res.end(JSON.stringify({ ok: false, error: err.message }));
+    }
+    return;
+  }
+
+  if (url.pathname === '/api/discover' && req.method === 'POST') {
+    await runDiscover(req, res);
     return;
   }
 
