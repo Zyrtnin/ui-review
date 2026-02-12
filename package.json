@@ -1,0 +1,38 @@
+{
+  "name": "ui-review",
+  "version": "0.1.0",
+  "description": "Automated UI/UX review CLI tool using Qwen3-VL vision model via Ollama",
+  "type": "module",
+  "bin": {
+    "ui-review": "./bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "prompts"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "test": "node --test lib/**/*.test.js",
+    "lint": "echo 'No linter configured yet'"
+  },
+  "private": true,
+  "keywords": [
+    "ui-review",
+    "visual-regression",
+    "ollama",
+    "qwen3-vl",
+    "playwright"
+  ],
+  "license": "UNLICENSED",
+  "dependencies": {
+    "commander": "^14.0.0",
+    "dotenv": "^16.3.1",
+    "ora": "^9.0.0",
+    "p-limit": "^7.0.0",
+    "playwright": "^1.50.0",
+    "@sindresorhus/slugify": "^3.0.0"
+  }
+}
