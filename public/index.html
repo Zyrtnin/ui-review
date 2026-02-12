@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI Review</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #242836;
+    --border: #2e3344;
+    --text: #e2e4ea;
+    --text-dim: #8b8fa3;
+    --accent: #6c8cff;
+    --accent-hover: #8ba4ff;
+    --critical: #ff4d6a;
+    --critical-bg: rgba(255,77,106,0.12);
+    --warning: #ffaa2c;
+    --warning-bg: rgba(255,170,44,0.12);
+    --suggestion: #4db8ff;
+    --suggestion-bg: rgba(77,184,255,0.12);
+    --success: #3ddc84;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --mono: 'SF Mono', SFMono-Regular, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; }
+
+  .container { max-width: 960px; margin: 0 auto; padding: 20px; }
+
+  header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  header h1 { font-size: 20px; font-weight: 600; }
+  header .status { margin-left: auto; font-size: 13px; color: var(--text-dim); }
+  header .status.ok { color: var(--success); }
+  header .status.fail { color: var(--critical); }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  .panel h2 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-dim); margin-bottom: 12px; }
+
+  /* Environment */
+  .env-bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .env-btn { padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text); cursor: pointer; font-size: 13px; transition: all 0.15s; }
+  .env-btn:hover { border-color: var(--accent); }
+  .env-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .url-input { flex: 1; min-width: 200px; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface2); color: var(--text); font-size: 13px; font-family: var(--mono); }
+  .url-input:focus { outline: none; border-color: var(--accent); }
+
+  /* Pages */
+  .page-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
+  .page-item { display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 4px 0; }
+  .page-item input[type="checkbox"] { accent-color: var(--accent); }
+  .page-item .path { color: var(--text-dim); font-family: var(--mono); font-size: 12px; }
+  .select-controls { display: flex; gap: 12px; margin-bottom: 8px; font-size: 13px; }
+  .select-controls a { color: var(--accent); cursor: pointer; text-decoration: none; }
+  .select-controls a:hover { text-decoration: underline; }
+  .custom-page { margin-top: 8px; display: flex; gap: 8px; }
+  .custom-page input { flex: 1; padding: 5px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface2); color: var(--text); font-size: 12px; font-family: var(--mono); }
+  .custom-page button { padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface2); color: var(--text); cursor: pointer; font-size: 12px; }
+
+  /* Viewports */
+  .viewport-bar { display: flex; gap: 12px; flex-wrap: wrap; }
+  .vp-item { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+  .vp-item input[type="checkbox"] { accent-color: var(--accent); }
+  .vp-dims { color: var(--text-dim); font-size: 11px; }
+
+  /* Actions */
+  .actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+  .run-btn { padding: 10px 28px; border: none; border-radius: 8px; background: var(--accent); color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .run-btn:hover { background: var(--accent-hover); }
+  .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .resume-btn { padding: 10px 20px; border: 1px solid var(--accent); border-radius: 8px; background: transparent; color: var(--accent); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .resume-btn:hover { background: rgba(108,140,255,0.1); }
+  .resume-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .allow-private { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-dim); }
+  .allow-private input { accent-color: var(--accent); }
+
+  /* Report info bar */
+  .report-info { font-size: 12px; color: var(--text-dim); margin-bottom: 12px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .report-info .report-id { font-family: var(--mono); }
+  .report-info .report-status { padding: 1px 6px; border-radius: 4px; font-weight: 500; }
+  .report-info .report-status.complete { background: rgba(61,220,132,0.15); color: var(--success); }
+  .report-info .report-status.running { background: rgba(108,140,255,0.15); color: var(--accent); }
+  .report-info .report-status.interrupted { background: var(--warning-bg); color: var(--warning); }
+  .report-info .report-status.error { background: var(--critical-bg); color: var(--critical); }
+  .report-history { font-size: 12px; color: var(--accent); cursor: pointer; text-decoration: none; margin-left: auto; }
+  .report-history:hover { text-decoration: underline; }
+
+  /* History dropdown */
+  .history-panel { display: none; margin-bottom: 16px; }
+  .history-panel.open { display: block; }
+  .history-item { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 13px; cursor: pointer; }
+  .history-item:hover { background: rgba(255,255,255,0.03); }
+  .history-item .hi-date { color: var(--text-dim); font-size: 12px; min-width: 140px; }
+  .history-item .hi-url { font-family: var(--mono); font-size: 12px; color: var(--text-dim); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .history-item .hi-progress { font-size: 12px; }
+
+  /* Progress */
+  .progress { font-size: 13px; color: var(--text-dim); margin-bottom: 16px; min-height: 20px; }
+  .progress .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 6px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Results */
+  .results-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .results-header h2 { margin-bottom: 0; }
+  .summary-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge { padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+  .badge.critical { background: var(--critical-bg); color: var(--critical); }
+  .badge.warning { background: var(--warning-bg); color: var(--warning); }
+  .badge.suggestion { background: var(--suggestion-bg); color: var(--suggestion); }
+
+  .result-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+  .result-card.cached { opacity: 0.7; }
+  .result-card-header { padding: 12px 16px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
+  .result-card-header:hover { background: rgba(255,255,255,0.03); }
+  .result-card-header .arrow { font-size: 11px; color: var(--text-dim); transition: transform 0.15s; }
+  .result-card-header .arrow.open { transform: rotate(90deg); }
+  .result-card-header .page-name { flex: 1; }
+  .result-card-header .issue-count { font-size: 12px; color: var(--text-dim); }
+  .cached-tag { font-size: 10px; color: var(--text-dim); background: var(--surface); padding: 1px 6px; border-radius: 3px; }
+
+  .result-card-body { display: none; padding: 0 16px 12px; }
+  .result-card-body.open { display: block; }
+  .result-card .summary-text { font-size: 13px; color: var(--text-dim); margin-bottom: 10px; font-style: italic; }
+
+  .issue { padding: 10px 0; border-top: 1px solid var(--border); }
+  .issue:first-child { border-top: none; }
+  .issue-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+  .issue .category { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.3px; }
+  .issue .location { font-size: 12px; color: var(--text-dim); margin-bottom: 2px; }
+  .issue .description { font-size: 13px; }
+  .issue .recommendation { font-size: 12px; color: var(--accent); margin-top: 4px; }
+
+  .error-card { background: var(--critical-bg); border: 1px solid var(--critical); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; font-size: 13px; color: var(--critical); }
+
+  .empty { text-align: center; color: var(--text-dim); padding: 40px; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>UI Review</h1>
+    <div class="status" id="ollamaStatus">Checking Ollama...</div>
+  </header>
+
+  <!-- Environment -->
+  <div class="panel">
+    <h2>Environment</h2>
+    <div class="env-bar">
+      <button class="env-btn active" data-url="http://localhost:8081">Localhost</button>
+      <button class="env-btn" data-url="">Staging</button>
+      <button class="env-btn" data-url="">Production</button>
+      <input type="text" class="url-input" id="baseUrl" value="http://localhost:8081" placeholder="https://your-app.com">
+    </div>
+  </div>
+
+  <!-- Pages -->
+  <div class="panel">
+    <h2>Pages</h2>
+    <div class="select-controls">
+      <a id="selectAll">Select all</a>
+      <a id="selectNone">Select none</a>
+    </div>
+    <div class="page-grid" id="pageGrid"></div>
+    <div class="custom-page">
+      <input type="text" id="customPath" placeholder="/custom-page.html">
+      <button id="addCustom">Add</button>
+    </div>
+  </div>
+
+  <!-- Viewports -->
+  <div class="panel">
+    <h2>Viewports</h2>
+    <div class="viewport-bar" id="viewportBar"></div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="run-btn" id="runBtn">Run Review</button>
+    <button class="resume-btn" id="resumeBtn" style="display:none">Resume</button>
+    <label class="allow-private">
+      <input type="checkbox" id="allowPrivate" checked> Allow private IPs (localhost)
+    </label>
+  </div>
+
+  <!-- Report info -->
+  <div class="report-info" id="reportInfo" style="display:none">
+    <span class="report-id" id="reportId"></span>
+    <span class="report-status" id="reportStatus"></span>
+    <span id="reportProgress"></span>
+    <span id="reportTime"></span>
+    <a class="report-history" id="historyToggle">History</a>
+  </div>
+
+  <!-- History -->
+  <div class="panel history-panel" id="historyPanel">
+    <h2>Past Reports</h2>
+    <div id="historyList"></div>
+  </div>
+
+  <div class="progress" id="progress"></div>
+
+  <!-- Results -->
+  <div id="results"></div>
+</div>
+
+<script>
+const DEFAULT_PAGES = [
+  { name: 'Home', path: '/' },
+  { name: 'Login', path: '/login.php' },
+  { name: 'Player Portal', path: '/player_portal.html' },
+  { name: 'Dashboard', path: '/player_dashboard.php' },
+  { name: 'Player Profile', path: '/player_profile.html' },
+  { name: 'Submit Score', path: '/player_submit.html' },
+  { name: 'Tournament Entry', path: '/tournament_entry.html' },
+  { name: 'Leaderboard', path: '/tournament_leaderboard.html' },
+  { name: 'Archive', path: '/tournament_archive.html' },
+  { name: 'Game Leaderboards', path: '/game_leaderboards.html' },
+  { name: 'Global Rankings', path: '/global_rankings.html' },
+];
+
+const VIEWPORTS = {
+  desktop: { width: 1920, height: 1080 },
+  laptop: { width: 1366, height: 768 },
+  tablet: { width: 768, height: 1024 },
+  mobile: { width: 375, height: 812 },
+};
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+// Current report state
+let currentReportId = null;
+let currentResults = {};  // key → result data
+
+// --- Init ---
+async function init() {
+  renderPages();
+  renderViewports();
+  setupEnvButtons();
+  setupActions();
+  checkHealth();
+  await loadLatestReport();
+}
+
+// --- Health check ---
+async function checkHealth() {
+  const el = $('#ollamaStatus');
+  try {
+    const res = await fetch('/api/health');
+    const data = await res.json();
+    if (data.ok) {
+      el.textContent = `Ollama OK (${data.models.length} models)`;
+      el.className = 'status ok';
+    } else {
+      el.textContent = `Ollama: ${data.error}`;
+      el.className = 'status fail';
+    }
+  } catch {
+    el.textContent = 'Server unreachable';
+    el.className = 'status fail';
+  }
+}
+
+// --- Pages ---
+function renderPages() {
+  const grid = $('#pageGrid');
+  grid.innerHTML = '';
+  for (const page of DEFAULT_PAGES) {
+    grid.appendChild(createPageCheckbox(page));
+  }
+}
+
+function createPageCheckbox(page) {
+  const div = document.createElement('div');
+  div.className = 'page-item';
+  div.innerHTML = `
+    <input type="checkbox" checked data-path="${escAttr(page.path)}" data-name="${escAttr(page.name)}">
+    <span>${escHtml(page.name)}</span>
+    <span class="path">${escHtml(page.path)}</span>
+  `;
+  return div;
+}
+
+$('#selectAll').addEventListener('click', () => {
+  $$('#pageGrid input[type="checkbox"]').forEach(cb => cb.checked = true);
+});
+$('#selectNone').addEventListener('click', () => {
+  $$('#pageGrid input[type="checkbox"]').forEach(cb => cb.checked = false);
+});
+$('#addCustom').addEventListener('click', () => {
+  const input = $('#customPath');
+  let path = input.value.trim();
+  if (!path) return;
+  if (!path.startsWith('/')) path = '/' + path;
+  const name = path.replace(/^\//, '').replace(/\.\w+$/, '') || 'custom';
+  $('#pageGrid').appendChild(createPageCheckbox({ name, path }));
+  input.value = '';
+});
+
+// --- Viewports ---
+function renderViewports() {
+  const bar = $('#viewportBar');
+  bar.innerHTML = '';
+  for (const [name, dims] of Object.entries(VIEWPORTS)) {
+    const div = document.createElement('div');
+    div.className = 'vp-item';
+    const checked = name === 'desktop' || name === 'mobile' ? 'checked' : '';
+    div.innerHTML = `
+      <input type="checkbox" ${checked} data-viewport="${name}">
+      <span>${name}</span>
+      <span class="vp-dims">${dims.width}x${dims.height}</span>
+    `;
+    bar.appendChild(div);
+  }
+}
+
+// --- Environment buttons ---
+function setupEnvButtons() {
+  $$('.env-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      $$('.env-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const url = btn.dataset.url;
+      if (url) {
+        $('#baseUrl').value = url;
+        try {
+          const hostname = new URL(url).hostname;
+          $('#allowPrivate').checked = ['localhost', '127.0.0.1', '::1'].includes(hostname);
+        } catch {}
+      }
+    });
+  });
+
+  $$('.env-btn').forEach(btn => {
+    btn.addEventListener('dblclick', () => {
+      const newUrl = prompt(`Set URL for "${btn.textContent}":`, btn.dataset.url);
+      if (newUrl !== null) {
+        btn.dataset.url = newUrl;
+      }
+    });
+  });
+}
+
+// --- Report persistence ---
+async function loadLatestReport() {
+  try {
+    const res = await fetch('/api/reports');
+    const reports = await res.json();
+    if (reports.length > 0) {
+      await loadReportById(reports[0].id);
+    }
+  } catch { /* no reports yet */ }
+}
+
+async function loadReportById(id) {
+  try {
+    const res = await fetch(`/api/reports/${id}`);
+    if (!res.ok) return;
+    const report = await res.json();
+    currentReportId = report.id;
+    currentResults = report.results || {};
+
+    // Render results
+    renderFullReport(report);
+    updateReportInfo(report);
+    updateResumeButton(report);
+  } catch { /* failed to load */ }
+}
+
+function renderFullReport(report) {
+  const resultsEl = $('#results');
+  resultsEl.innerHTML = '';
+
+  const totals = { critical: 0, warning: 0, suggestion: 0 };
+
+  // Render results in order of pages × viewports
+  for (const page of (report.pages || [])) {
+    const viewports = report.config?.viewports || ['desktop'];
+    for (const vp of viewports) {
+      const key = `${page.name}::${vp}`;
+      if (report.results[key]) {
+        const result = report.results[key];
+        renderResultCard({ page: page.name, viewport: vp, data: result, cached: true }, resultsEl);
+        for (const issue of (result.issues || [])) {
+          totals[issue.severity] = (totals[issue.severity] || 0) + 1;
+        }
+      } else if (report.errors && report.errors[key]) {
+        renderErrorCard({ page: page.name, viewport: vp, message: report.errors[key].message }, resultsEl);
+      }
+    }
+  }
+
+  if (Object.keys(report.results || {}).length > 0) {
+    updateSummaryBadges(totals);
+  }
+}
+
+function updateReportInfo(report) {
+  const infoEl = $('#reportInfo');
+  infoEl.style.display = 'flex';
+
+  $('#reportId').textContent = report.id;
+
+  const statusEl = $('#reportStatus');
+  statusEl.textContent = report.status;
+  statusEl.className = `report-status ${report.status}`;
+
+  const completed = Object.keys(report.results || {}).length;
+  const total = report.totalExpected || 0;
+  $('#reportProgress').textContent = `${completed}/${total} pages`;
+
+  if (report.updatedAt) {
+    const d = new Date(report.updatedAt);
+    $('#reportTime').textContent = d.toLocaleString();
+  }
+}
+
+function updateResumeButton(report) {
+  const btn = $('#resumeBtn');
+  const completed = Object.keys(report.results || {}).length;
+  const total = report.totalExpected || 0;
+  const hasErrors = Object.keys(report.errors || {}).length > 0;
+
+  if ((completed < total || hasErrors) && report.status !== 'running') {
+    const remaining = total - completed;
+    btn.style.display = '';
+    btn.textContent = `Resume (${remaining} remaining)`;
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+// --- History ---
+$('#historyToggle').addEventListener('click', async () => {
+  const panel = $('#historyPanel');
+  if (panel.classList.contains('open')) {
+    panel.classList.remove('open');
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/reports');
+    const reports = await res.json();
+    const list = $('#historyList');
+    list.innerHTML = '';
+
+    if (reports.length === 0) {
+      list.innerHTML = '<div class="empty" style="padding:12px">No reports yet.</div>';
+    }
+
+    for (const r of reports) {
+      const div = document.createElement('div');
+      div.className = 'history-item';
+      const d = new Date(r.createdAt);
+      const statusClass = r.status || '';
+      div.innerHTML = `
+        <span class="hi-date">${d.toLocaleString()}</span>
+        <span class="hi-url">${escHtml(r.baseUrl || '')}</span>
+        <span class="hi-progress">${r.resultCount}/${r.totalExpected}</span>
+        <span class="report-status ${statusClass}" style="font-size:11px">${r.status}</span>
+      `;
+      div.addEventListener('click', () => {
+        panel.classList.remove('open');
+        loadReportById(r.id);
+      });
+      list.appendChild(div);
+    }
+
+    panel.classList.add('open');
+  } catch {}
+});
+
+// --- Run / Resume ---
+function setupActions() {
+  $('#runBtn').addEventListener('click', () => startReview(false));
+  $('#resumeBtn').addEventListener('click', () => startReview(true));
+}
+
+function getSelectedPages() {
+  const pages = [];
+  $$('#pageGrid input[type="checkbox"]:checked').forEach(cb => {
+    pages.push({ name: cb.dataset.name, path: cb.dataset.path });
+  });
+  return pages;
+}
+
+function getSelectedViewports() {
+  const vps = [];
+  $$('#viewportBar input[type="checkbox"]:checked').forEach(cb => {
+    vps.push(cb.dataset.viewport);
+  });
+  return vps;
+}
+
+async function startReview(resume) {
+  const baseUrl = $('#baseUrl').value.trim();
+  const pages = getSelectedPages();
+  const viewports = getSelectedViewports();
+  const allowPrivate = $('#allowPrivate').checked;
+
+  if (!baseUrl) return alert('Enter a base URL');
+  if (!pages.length) return alert('Select at least one page');
+  if (!viewports.length) return alert('Select at least one viewport');
+
+  const runBtn = $('#runBtn');
+  const resumeBtn = $('#resumeBtn');
+  runBtn.disabled = true;
+  resumeBtn.disabled = true;
+  runBtn.textContent = 'Running...';
+  const progressEl = $('#progress');
+  const resultsEl = $('#results');
+
+  // For fresh runs, clear results. For resume, keep existing.
+  if (!resume) {
+    resultsEl.innerHTML = '';
+    currentReportId = null;
+    currentResults = {};
+  }
+
+  const totals = { critical: 0, warning: 0, suggestion: 0 };
+
+  // Recount existing results if resuming
+  if (resume) {
+    for (const r of Object.values(currentResults)) {
+      for (const issue of (r.issues || [])) {
+        totals[issue.severity] = (totals[issue.severity] || 0) + 1;
+      }
+    }
+    updateSummaryBadges(totals);
+  }
+
+  const body = { baseUrl, pages, viewports, allowPrivate };
+  if (resume && currentReportId) {
+    body.reportId = currentReportId;
+    // skipCompleted is built server-side from existing results
+  }
+
+  try {
+    const response = await fetch('/api/review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        let msg;
+        try { msg = JSON.parse(line.slice(6)); } catch { continue; }
+
+        if (msg.event === 'report-id') {
+          currentReportId = msg.reportId;
+        } else if (msg.event === 'progress') {
+          progressEl.innerHTML = `<span class="spinner"></span>${escHtml(msg.message)}`;
+        } else if (msg.event === 'result') {
+          const key = `${msg.page}::${msg.viewport}`;
+
+          // Remove existing card for this key if re-rendering on resume
+          if (msg.cached && resume) {
+            // Don't re-render cached results that are already shown
+            if (currentResults[key]) continue;
+          }
+
+          currentResults[key] = msg.data;
+          renderResultCard(msg, resultsEl);
+          for (const issue of (msg.data?.issues || [])) {
+            totals[issue.severity] = (totals[issue.severity] || 0) + 1;
+          }
+          updateSummaryBadges(totals);
+        } else if (msg.event === 'page-error') {
+          renderErrorCard(msg, resultsEl);
+        } else if (msg.event === 'error') {
+          progressEl.innerHTML = '';
+          renderErrorCard({ page: 'System', message: msg.message }, resultsEl);
+        } else if (msg.event === 'done') {
+          progressEl.innerHTML = '';
+          // Refresh report info
+          if (currentReportId) {
+            try {
+              const res = await fetch(`/api/reports/${currentReportId}`);
+              const report = await res.json();
+              updateReportInfo(report);
+              updateResumeButton(report);
+            } catch {}
+          }
+        }
+      }
+    }
+  } catch (err) {
+    progressEl.innerHTML = '';
+    renderErrorCard({ page: 'Network', message: err.message }, resultsEl);
+  }
+
+  runBtn.disabled = false;
+  resumeBtn.disabled = false;
+  runBtn.textContent = 'Run Review';
+  if (!resultsEl.children.length) {
+    resultsEl.innerHTML = '<div class="empty">No results. Check your configuration and try again.</div>';
+  }
+}
+
+// --- Rendering ---
+function renderResultCard(msg, container) {
+  const card = document.createElement('div');
+  card.className = 'result-card' + (msg.cached ? ' cached' : '');
+
+  let data = msg.data || {};
+
+  // Client-side fallback: if server returned _raw, try to re-parse
+  if (data._raw && data.summary) {
+    try {
+      const parsed = JSON.parse(data.summary);
+      if (Array.isArray(parsed.issues)) {
+        data = { ...parsed, _raw: false, url: data.url, viewport: data.viewport };
+      }
+    } catch {
+      const m = data.summary.match(/\{[\s\S]*\}/);
+      if (m) {
+        try {
+          const parsed = JSON.parse(m[0]);
+          if (Array.isArray(parsed.issues)) {
+            data = { ...parsed, _raw: false, url: data.url, viewport: data.viewport };
+          }
+        } catch { /* give up */ }
+      }
+    }
+  }
+
+  const issues = Array.isArray(data.issues) ? data.issues : [];
+  const counts = { critical: 0, warning: 0, suggestion: 0 };
+  issues.forEach(i => { if (i.severity) counts[i.severity]++; });
+
+  const badges = Object.entries(counts)
+    .filter(([, n]) => n > 0)
+    .map(([sev, n]) => `<span class="badge ${sev}">${n} ${sev}</span>`)
+    .join('');
+
+  const isRaw = !!data._raw;
+
+  const summary = (data.summary && !isRaw && !data.summary.startsWith('{'))
+    ? `<div class="summary-text">${escHtml(data.summary)}</div>`
+    : '';
+
+  const cachedTag = msg.cached ? '<span class="cached-tag">cached</span>' : '';
+  const rawTag = isRaw ? '<span class="badge warning" style="font-size:10px">raw</span>' : '';
+
+  // For raw responses, show the actual VLM text (truncated for readability)
+  let rawContent = '';
+  if (isRaw && data.summary) {
+    const rawText = typeof data.summary === 'string' ? data.summary : JSON.stringify(data.summary, null, 2);
+    rawContent = `
+      <div style="color:var(--warning);font-size:12px;padding:4px 0;margin-bottom:8px;">VLM returned unstructured text (not parsed as JSON):</div>
+      <pre style="font-size:12px;color:var(--text-dim);background:var(--surface);padding:10px;border-radius:6px;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto;line-height:1.6;">${escHtml(rawText)}</pre>
+    `;
+  }
+
+  card.innerHTML = `
+    <div class="result-card-header" onclick="this.querySelector('.arrow').classList.toggle('open'); this.nextElementSibling.classList.toggle('open')">
+      <span class="arrow">&#9654;</span>
+      <span class="page-name">${escHtml(msg.page)} <span style="color:var(--text-dim);font-size:12px">(${escHtml(msg.viewport)})</span></span>
+      ${cachedTag}
+      ${rawTag}
+      <span class="issue-count">${isRaw ? 'parse failed' : issues.length + ' issue' + (issues.length !== 1 ? 's' : '')}</span>
+      ${badges}
+    </div>
+    <div class="result-card-body">
+      ${summary}
+      ${issues.map(renderIssue).join('')}
+      ${!isRaw && issues.length === 0 ? '<div style="color:var(--success);font-size:13px;padding:8px 0;">No issues found!</div>' : ''}
+      ${rawContent}
+    </div>
+  `;
+  container.appendChild(card);
+}
+
+function renderIssue(issue) {
+  return `
+    <div class="issue">
+      <div class="issue-header">
+        <span class="badge ${issue.severity}">${issue.severity}</span>
+        <span class="category">${escHtml(issue.category)}</span>
+      </div>
+      <div class="location">${escHtml(issue.location)}</div>
+      <div class="description">${escHtml(issue.description)}</div>
+      ${issue.recommendation ? `<div class="recommendation">${escHtml(issue.recommendation)}</div>` : ''}
+    </div>
+  `;
+}
+
+function renderErrorCard(msg, container) {
+  const card = document.createElement('div');
+  card.className = 'error-card';
+  card.textContent = `${msg.page || 'Error'}${msg.viewport ? ` (${msg.viewport})` : ''}: ${msg.message}`;
+  container.appendChild(card);
+}
+
+function updateSummaryBadges(totals) {
+  let header = $('#resultsSummary');
+  if (!header) {
+    header = document.createElement('div');
+    header.className = 'results-header';
+    header.id = 'resultsSummary';
+    const resultsEl = $('#results');
+    resultsEl.insertBefore(header, resultsEl.firstChild);
+  }
+  const total = totals.critical + totals.warning + totals.suggestion;
+  header.innerHTML = `
+    <h2 style="font-size:14px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim)">Results</h2>
+    <div class="summary-badges">
+      <span style="font-size:13px;color:var(--text-dim)">${total} total</span>
+      ${totals.critical ? `<span class="badge critical">${totals.critical} critical</span>` : ''}
+      ${totals.warning ? `<span class="badge warning">${totals.warning} warning</span>` : ''}
+      ${totals.suggestion ? `<span class="badge suggestion">${totals.suggestion} suggestion</span>` : ''}
+    </div>
+  `;
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+function escAttr(s) {
+  return (s || '').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+init();
+</script>
+</body>
+</html>

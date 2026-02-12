@@ -1,0 +1,21 @@
+The following text is a UI/UX review that was not returned as valid JSON. Convert it into the exact JSON schema below. Extract all issues mentioned in the text. Do not add issues that aren't in the original text.
+
+Required JSON schema:
+{
+  "issues": [
+    {
+      "severity": "critical" | "warning" | "suggestion",
+      "category": "LAYOUT" | "TYPOGRAPHY" | "COLOR" | "SPACING" | "COMPONENTS" | "ACCESSIBILITY" | "RESPONSIVENESS" | "PERFORMANCE" | "NAVIGATION" | "FORMS" | "CONTENT" | "BRANDING",
+      "location": "brief description of where on the page",
+      "description": "what the issue is",
+      "recommendation": "how to fix it"
+    }
+  ],
+  "summary": "one sentence summary of the review"
+}
+
+Respond ONLY with the JSON object, no markdown fences, no explanation.
+
+--- BEGIN REVIEW TEXT ---
+{{rawText}}
+--- END REVIEW TEXT ---
