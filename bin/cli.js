@@ -82,8 +82,9 @@ async function run(url, opts) {
     console.error(`Prewarming model ${config.model}...`);
     await prewarm(config);
 
-    // Step 4: Analyze with VLM
+    // Step 4: Analyze with VLM (streaming NDJSON)
     console.error(`Analyzing with ${config.model}...`);
+    const systemPrompt = loadPrompt('review-system');
     const prompt = loadPrompt('review', {
       viewport: viewport.name,
       viewportWidth: viewport.width,
@@ -91,37 +92,11 @@ async function run(url, opts) {
       url,
     });
 
-    // JSON schema for structured output (format parameter)
-    const formatSchema = {
-      type: 'object',
-      properties: {
-        issues: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              severity: { type: 'string', enum: ['critical', 'warning', 'suggestion'] },
-              category: { type: 'string', enum: [
-                'layout', 'typography', 'components', 'spacing',
-                'visual-hierarchy', 'accessibility', 'responsive-fit',
-              ]},
-              location: { type: 'string' },
-              description: { type: 'string' },
-              recommendation: { type: 'string' },
-            },
-            required: ['severity', 'category', 'location', 'description', 'recommendation'],
-          },
-        },
-        summary: { type: 'string' },
-      },
-      required: ['issues', 'summary'],
-    };
-
     const raw = await analyze({
       config,
+      systemPrompt,
       prompt,
       images: [buffer],
-      formatSchema,
     });
 
     const result = sanitizeResult(raw, { url, viewport: viewport.name });
