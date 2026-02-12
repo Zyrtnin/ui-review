@@ -123,6 +123,10 @@
   .resume-btn { padding: 10px 20px; border: 1px solid var(--accent); border-radius: 8px; background: transparent; color: var(--accent); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
   .resume-btn:hover { background: rgba(108,140,255,0.1); }
   .resume-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .pause-btn { padding: 10px 20px; border: 1px solid var(--warning); border-radius: 8px; background: transparent; color: var(--warning); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .pause-btn:hover { background: var(--warning-bg); }
+  .stop-btn { padding: 10px 20px; border: 1px solid var(--critical); border-radius: 8px; background: transparent; color: var(--critical); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+  .stop-btn:hover { background: var(--critical-bg); }
   .export-btn { padding: 10px 20px; border: 1px solid var(--border); border-radius: 8px; background: transparent; color: var(--text); font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
   .export-btn:hover { border-color: var(--accent); color: var(--accent); }
   .export-btn:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -279,6 +283,8 @@
   <!-- Actions -->
   <div class="actions">
     <button class="run-btn" id="runBtn">Run Review</button>
+    <button class="pause-btn" id="pauseBtn" style="display:none">Pause</button>
+    <button class="stop-btn" id="stopBtn" style="display:none">Stop</button>
     <button class="resume-btn" id="resumeBtn" style="display:none">Resume</button>
     <button class="export-btn" id="exportBtn" style="display:none">Export Report</button>
     <label class="allow-private">
@@ -345,6 +351,8 @@ const STORAGE_KEY_ENVS = 'ui-review-environments';
 // Current report state
 let currentReportId = null;
 let currentResults = {};  // key → result data
+let currentReviewController = null;  // AbortController for active review
+let reviewWasPaused = false;  // distinguishes pause from stop
 
 // --- Init ---
 async function init() {
@@ -929,7 +937,42 @@ $('#historyToggle').addEventListener('click', async () => {
 function setupActions() {
   $('#runBtn').addEventListener('click', () => startReview(false));
   $('#resumeBtn').addEventListener('click', () => startReview(true));
+  $('#pauseBtn').addEventListener('click', pauseReview);
+  $('#stopBtn').addEventListener('click', stopReview);
   $('#exportBtn').addEventListener('click', exportReport);
+}
+
+function setReviewButtons(state) {
+  const runBtn = $('#runBtn');
+  const pauseBtn = $('#pauseBtn');
+  const stopBtn = $('#stopBtn');
+  const resumeBtn = $('#resumeBtn');
+
+  if (state === 'running') {
+    runBtn.style.display = 'none';
+    pauseBtn.style.display = '';
+    stopBtn.style.display = '';
+    resumeBtn.style.display = 'none';
+  } else {
+    runBtn.style.display = '';
+    runBtn.disabled = false;
+    runBtn.textContent = 'Run Review';
+    pauseBtn.style.display = 'none';
+    stopBtn.style.display = 'none';
+    // Resume visibility managed by updateResumeButton
+  }
+}
+
+function pauseReview() {
+  if (!currentReviewController) return;
+  reviewWasPaused = true;
+  currentReviewController.abort();
+}
+
+function stopReview() {
+  if (!currentReviewController) return;
+  reviewWasPaused = false;
+  currentReviewController.abort();
 }
 
 function getSelectedPages() {
@@ -1054,13 +1097,13 @@ async function startReview(resume) {
   if (!pages.length) return alert('Select at least one page');
   if (!viewports.length) return alert('Select at least one viewport');
 
-  const runBtn = $('#runBtn');
-  const resumeBtn = $('#resumeBtn');
-  runBtn.disabled = true;
-  resumeBtn.disabled = true;
-  runBtn.textContent = 'Running...';
   const progressEl = $('#progress');
   const resultsEl = $('#results');
+
+  // Set up abort controller for pause/stop
+  currentReviewController = new AbortController();
+  reviewWasPaused = false;
+  setReviewButtons('running');
 
   // For fresh runs, clear results. For resume, keep existing.
   if (!resume) {
@@ -1088,11 +1131,14 @@ async function startReview(resume) {
     // skipCompleted is built server-side from existing results
   }
 
+  let wasAborted = false;
+
   try {
     const response = await fetch('/api/review', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal: currentReviewController.signal,
     });
 
     const reader = response.body.getReader();
@@ -1152,13 +1198,33 @@ async function startReview(resume) {
       }
     }
   } catch (err) {
-    progressEl.innerHTML = '';
-    renderErrorCard({ page: 'Network', message: err.message }, resultsEl);
+    if (err.name === 'AbortError') {
+      wasAborted = true;
+      progressEl.innerHTML = reviewWasPaused
+        ? '<span style="color:var(--warning)">Review paused — click Resume to continue</span>'
+        : '<span style="color:var(--text-dim)">Review stopped</span>';
+    } else {
+      progressEl.innerHTML = '';
+      renderErrorCard({ page: 'Network', message: err.message }, resultsEl);
+    }
   }
 
-  runBtn.disabled = false;
-  resumeBtn.disabled = false;
-  runBtn.textContent = 'Run Review';
+  currentReviewController = null;
+  setReviewButtons('idle');
+
+  // After abort, refresh report info to get accurate status and show Resume button
+  if (wasAborted && currentReportId) {
+    // Give server a moment to finalize the report
+    await new Promise(r => setTimeout(r, 300));
+    try {
+      const res = await fetch(`/api/reports/${currentReportId}`);
+      const report = await res.json();
+      updateReportInfo(report);
+      updateResumeButton(report);
+      updateExportButton();
+    } catch {}
+  }
+
   if (!resultsEl.children.length) {
     resultsEl.innerHTML = '<div class="empty">No results. Check your configuration and try again.</div>';
   }
