@@ -198,6 +198,19 @@
 
   .error-card { background: var(--critical-bg); border: 1px solid var(--critical); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; font-size: 13px; color: var(--critical); }
 
+  /* Watch mode controls */
+  .watch-panel { background: var(--surface); border: 1px solid var(--accent); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .watch-panel .watch-status { font-size: 13px; font-weight: 500; color: var(--accent); display: flex; align-items: center; gap: 6px; }
+  .watch-panel .watch-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .watch-panel .rerun-btn { padding: 6px 16px; border: 1px solid var(--accent); border-radius: 6px; background: transparent; color: var(--accent); cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; }
+  .watch-panel .rerun-btn:hover { background: rgba(108,140,255,0.1); }
+  .watch-panel .rerun-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .watch-panel .stop-watch-btn { padding: 6px 16px; border: 1px solid var(--critical); border-radius: 6px; background: transparent; color: var(--critical); cursor: pointer; font-size: 13px; transition: all 0.15s; }
+  .watch-panel .stop-watch-btn:hover { background: var(--critical-bg); }
+  .watch-panel .poll-control { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: 12px; color: var(--text-dim); }
+  .watch-panel .poll-control select { padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface2); color: var(--text); font-size: 12px; }
+
   .empty { text-align: center; color: var(--text-dim); padding: 40px; font-size: 14px; }
 </style>
 </head>
@@ -312,6 +325,23 @@
 
   <div class="progress" id="progress"></div>
 
+  <!-- Watch mode controls (hidden until watch-ready) -->
+  <div class="watch-panel" id="watchPanel" style="display:none">
+    <span class="watch-status"><span class="dot"></span> Watching</span>
+    <button class="rerun-btn" id="rerunBtn">Re-review</button>
+    <button class="stop-watch-btn" id="stopWatchBtn">Stop Watching</button>
+    <span class="poll-control">
+      Poll:
+      <select id="pollSelect">
+        <option value="0">Off</option>
+        <option value="60000">1 min</option>
+        <option value="300000" selected>5 min</option>
+        <option value="900000">15 min</option>
+        <option value="1800000">30 min</option>
+      </select>
+    </span>
+  </div>
+
   <!-- Results -->
   <div id="results"></div>
 </div>
@@ -353,6 +383,7 @@ let currentReportId = null;
 let currentResults = {};  // key → result data
 let currentReviewController = null;  // AbortController for active review
 let reviewWasPaused = false;  // distinguishes pause from stop
+let currentWatchReportId = null;  // active watch session report ID
 
 // --- Init ---
 async function init() {
@@ -940,7 +971,94 @@ function setupActions() {
   $('#pauseBtn').addEventListener('click', pauseReview);
   $('#stopBtn').addEventListener('click', stopReview);
   $('#exportBtn').addEventListener('click', exportReport);
+
+  // Watch mode controls
+  $('#rerunBtn').addEventListener('click', rerunWatch);
+  $('#stopWatchBtn').addEventListener('click', stopWatch);
 }
+
+/** Re-trigger a review on the active watch session. */
+async function rerunWatch() {
+  if (!currentWatchReportId) return;
+  const btn = $('#rerunBtn');
+  btn.disabled = true;
+  btn.textContent = 'Re-reviewing...';
+  const watchStatus = $('#watchPanel').querySelector('.watch-status');
+  watchStatus.innerHTML = '<span class="dot" style="background:var(--accent)"></span> Re-reviewing...';
+
+  try {
+    const progressEl = $('#progress');
+    const resultsEl = $('#results');
+    resultsEl.innerHTML = '';
+    const totals = { critical: 0, warning: 0, suggestion: 0 };
+
+    const body = {
+      reportId: currentWatchReportId,
+      baseUrl: $('#baseUrl')?.value || '',
+      pages: [],
+      viewports: getSelectedViewports(),
+      allowPrivate: $('#allowPrivate').checked,
+      authState: currentAuthState,
+    };
+
+    const response = await fetch('/api/review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        let msg;
+        try { msg = JSON.parse(line.slice(6)); } catch { continue; }
+
+        if (msg.event === 'progress') {
+          progressEl.innerHTML = `<span class="spinner"></span>${escHtml(msg.message)}`;
+        } else if (msg.event === 'result') {
+          const key = `${msg.page}::${msg.viewport}`;
+          currentResults[key] = msg.data;
+          renderResultCard(msg, resultsEl);
+          for (const issue of (msg.data?.issues || [])) {
+            totals[issue.severity] = (totals[issue.severity] || 0) + 1;
+          }
+          updateSummaryBadges(totals);
+        } else if (msg.event === 'page-error') {
+          renderErrorCard(msg, resultsEl);
+        } else if (msg.event === 'done') {
+          progressEl.innerHTML = '';
+        }
+      }
+    }
+  } catch (err) {
+    $('#progress').innerHTML = `<span style="color:var(--critical)">Re-review failed: ${escHtml(err.message)}</span>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Re-review';
+    const watchStatus = $('#watchPanel').querySelector('.watch-status');
+    watchStatus.innerHTML = '<span class="dot"></span> Watching';
+  }
+}
+
+/** Stop the active watch session. */
+async function stopWatch() {
+  if (!currentWatchReportId) return;
+  try {
+    await fetch(`/api/watch/${currentWatchReportId}/stop`, { method: 'POST' });
+  } catch {}
+  currentWatchReportId = null;
+  $('#watchPanel').style.display = 'none';
 
 function setReviewButtons(state) {
   const runBtn = $('#runBtn');
@@ -1125,11 +1243,16 @@ async function startReview(resume) {
   }
 
   const watchMode = $('#watchMode').checked;
-  const body = { baseUrl, pages, viewports, allowPrivate, watchMode, authState: currentAuthState };
+  const pollInterval = watchMode ? parseInt($('#pollSelect').value, 10) || 0 : 0;
+  const body = { baseUrl, pages, viewports, allowPrivate, watchMode, pollInterval, authState: currentAuthState };
   if (resume && currentReportId) {
     body.reportId = currentReportId;
     // skipCompleted is built server-side from existing results
   }
+
+  // Hide watch panel from any previous session
+  $('#watchPanel').style.display = 'none';
+  currentWatchReportId = null;
 
   let wasAborted = false;
 
@@ -1182,6 +1305,10 @@ async function startReview(resume) {
         } else if (msg.event === 'error') {
           progressEl.innerHTML = '';
           renderErrorCard({ page: 'System', message: msg.message }, resultsEl);
+        } else if (msg.event === 'watch-ready') {
+          // Show watch mode controls
+          $('#watchPanel').style.display = '';
+          currentWatchReportId = msg.reportId;
         } else if (msg.event === 'done') {
           progressEl.innerHTML = '';
           // Refresh report info

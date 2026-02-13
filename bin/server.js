@@ -6,10 +6,12 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 
 import { join } from 'node:path';
 import { loadConfig, VIEWPORTS } from '../lib/config.js';
 import { healthCheck, prewarm, analyze, parseVlmJson } from '../lib/ollama.js';
-import { captureScreenshot } from '../lib/capture.js';
+import { captureScreenshot, launchBrowser } from '../lib/capture.js';
 import { loadPrompt } from '../lib/prompts.js';
 import { sanitizeResult } from '../lib/report.js';
 import { discoverPages } from '../lib/discover.js';
+import { PNG } from 'pngjs';
+import pixelmatch from 'pixelmatch';
 
 const PORT = parseInt(process.argv.find((_, i, a) => a[i - 1] === '--port') || '3000', 10);
 const PUBLIC_DIR = join(import.meta.dirname, '..', 'public');
@@ -17,6 +19,12 @@ const REPORTS_DIR = join(import.meta.dirname, '..', 'reports');
 
 // Ensure reports directory exists
 mkdirSync(REPORTS_DIR, { recursive: true });
+
+/**
+ * Active watch sessions — browser persists across SSE request cycles.
+ * @type {Map<string, { browser, page, authState, config, pages, viewports, pollTimer, reviewInProgress, startedAt, baseUrl, allowPrivate }>}
+ */
+const watchSessions = new Map();
 
 /** Send an SSE event line. */
 function sendEvent(res, event, data) {
@@ -139,6 +147,169 @@ async function executeLogin({ baseUrl, loginUrl, username, password, allowPrivat
   }
 }
 
+/**
+ * Generate a URL token for a page that requires tokenAuth.
+ * Uses authenticated fetch with cookies from storageState.
+ */
+async function generatePageToken({ page, baseUrl, authState }) {
+  const { tokenAuth } = page;
+  if (!tokenAuth) return null;
+
+  const tokenUrl = baseUrl.replace(/\/$/, '') + tokenAuth.endpoint;
+
+  // Convert storageState cookies to Cookie header
+  const cookies = (authState?.cookies || [])
+    .filter(c => {
+      if (!c.domain) return true;
+      const host = new URL(tokenUrl).hostname;
+      return host === c.domain || host.endsWith('.' + c.domain);
+    })
+    .map(c => `${c.name}=${c.value}`)
+    .join('; ');
+
+  const method = tokenAuth.method || 'POST';
+  const resp = await fetch(tokenUrl, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(cookies ? { Cookie: cookies } : {}),
+    },
+    body: method === 'GET' ? undefined : JSON.stringify(tokenAuth.body || {}),
+  });
+
+  if (!resp.ok) throw new Error(`Token endpoint returned ${resp.status}`);
+  const data = await resp.json();
+
+  // Extract token using dot-path (e.g., "data.token" → data["data"]["token"])
+  const token = tokenAuth.responseField.split('.').reduce((obj, key) => obj?.[key], data);
+  if (!token) throw new Error(`Token field "${tokenAuth.responseField}" not found in response`);
+
+  return { queryParam: tokenAuth.queryParam, value: String(token) };
+}
+
+/**
+ * Compare two PNG buffers. Returns true if they differ by more than threshold.
+ */
+function screenshotsChanged(buf1, buf2, threshold = 0.005) {
+  const img1 = PNG.sync.read(buf1);
+  const img2 = PNG.sync.read(buf2);
+  if (img1.width !== img2.width || img1.height !== img2.height) return true;
+  const totalPixels = img1.width * img1.height;
+  const diffCount = pixelmatch(img1.data, img2.data, null, img1.width, img1.height, { threshold: 0.1 });
+  return (diffCount / totalPixels) > threshold;
+}
+
+/**
+ * Run a poll cycle for a watch session.
+ * Re-captures all pages, diffs screenshots, and only re-analyzes changed ones.
+ */
+async function runPollCycle(reportId) {
+  const session = watchSessions.get(reportId);
+  if (!session || session.reviewInProgress) return;
+
+  session.reviewInProgress = true;
+  const report = loadReport(reportId);
+  if (!report) {
+    session.reviewInProgress = false;
+    return;
+  }
+
+  const { browser, page: sharedPage, config, pages, viewports, baseUrl, authState, allowPrivate } = session;
+  const systemPrompt = loadPrompt('review-system');
+
+  try {
+    for (const pg of pages) {
+      // Generate token if needed
+      let tokenSuffix = '';
+      if (pg.tokenAuth && authState) {
+        try {
+          const token = await generatePageToken({ page: pg, baseUrl, authState });
+          if (token) {
+            const sep = pg.path.includes('?') ? '&' : '?';
+            tokenSuffix = `${sep}${token.queryParam}=${encodeURIComponent(token.value)}`;
+          }
+        } catch { continue; }
+      }
+
+      for (const viewport of viewports) {
+        const key = resultKey(pg.name, viewport.name);
+        const fullUrl = baseUrl.replace(/\/$/, '') + pg.path + tokenSuffix;
+
+        try {
+          // Capture new screenshot
+          const buffer = await captureScreenshot({
+            url: fullUrl,
+            viewport,
+            config,
+            allowPrivate,
+            headless: false,
+            browser,
+            page: sharedPage,
+          });
+
+          // Compare with previous screenshot
+          const screenshotDir = join(REPORTS_DIR, reportId, 'screenshots');
+          const screenshotFilename = `${sanitizeName(pg.name)}_${viewport.name}.png`;
+          const prevPath = join(screenshotDir, screenshotFilename);
+
+          let changed = true;
+          if (existsSync(prevPath)) {
+            const prevBuffer = readFileSync(prevPath);
+            changed = screenshotsChanged(prevBuffer, buffer);
+          }
+
+          if (!changed) continue; // Screenshot unchanged — skip analysis
+
+          // Save new screenshot
+          mkdirSync(screenshotDir, { recursive: true });
+          writeFileSync(join(screenshotDir, screenshotFilename), buffer);
+
+          // Re-analyze changed page
+          const prompt = loadPrompt('review', {
+            url: fullUrl,
+            viewport: viewport.name,
+            viewportWidth: viewport.width,
+            viewportHeight: viewport.height,
+          });
+
+          const raw = await analyze({ config, systemPrompt, prompt, images: [buffer] });
+          let result = sanitizeResult(raw, { url: fullUrl, viewport: viewport.name });
+
+          if (result._raw && result.summary) {
+            const retried = parseVlmJson(result.summary);
+            if (!retried._raw) {
+              result = sanitizeResult(retried, { url: fullUrl, viewport: viewport.name });
+            }
+          }
+
+          result.screenshot = `screenshots/${screenshotFilename}`;
+          result.pollCycleAt = new Date().toISOString();
+          report.results[key] = result;
+          delete report.errors[key];
+        } catch (err) {
+          report.errors[key] = { message: `Poll cycle error: ${err.message}`, timestamp: new Date().toISOString() };
+        }
+      }
+    }
+
+    // Recalculate summary
+    report.summary = { pages: 0, issues: 0, critical: 0, warning: 0, suggestion: 0 };
+    report.summary.pages = Object.keys(report.results).length;
+    for (const r of Object.values(report.results)) {
+      for (const issue of r.issues || []) {
+        report.summary.issues++;
+        report.summary[issue.severity] = (report.summary[issue.severity] || 0) + 1;
+      }
+    }
+    report.updatedAt = new Date().toISOString();
+    saveReport(report);
+  } catch {
+    // Poll cycle failed — will retry next interval
+  } finally {
+    session.reviewInProgress = false;
+  }
+}
+
 /** Discover pages on a site, streaming SSE events. */
 async function runDiscover(req, res) {
   res.writeHead(200, {
@@ -215,15 +386,23 @@ async function runReview(req, res) {
   }
 
   const {
-    baseUrl,
-    pages = [],
+    baseUrl: bodyBaseUrl,
+    pages: bodyPages = [],
     viewports = ['desktop'],
     allowPrivate = false,
     reportId,       // Resume existing report
     skipCompleted,  // Array of "page::viewport" keys to skip
     watchMode = false,
+    pollInterval,   // Optional polling interval in ms (min 60000)
     authState,
   } = body;
+
+  // Check if this is a watch session re-trigger
+  const watchSession = reportId ? watchSessions.get(reportId) : null;
+
+  // For re-triggers, use stored values; for new reviews, use request body
+  const baseUrl = watchSession?.baseUrl || bodyBaseUrl;
+  const pages = (bodyPages.length ? bodyPages : watchSession?.pages) || [];
 
   if (!baseUrl || !pages.length) {
     sendEvent(res, 'error', { message: 'baseUrl and at least one page are required' });
@@ -280,14 +459,45 @@ async function runReview(req, res) {
     };
   }
 
-  // Build skip set from existing results
-  const skip = new Set(skipCompleted || Object.keys(report.results));
+  // Build skip set from existing results (watch re-triggers skip nothing by default)
+  const skip = new Set(watchSession ? (skipCompleted || []) : (skipCompleted || Object.keys(report.results)));
 
   sendEvent(res, 'report-id', { reportId: report.id });
   saveReport(report);
 
   let aborted = false;
-  req.on('close', () => { aborted = true; });
+  const reviewAbort = new AbortController();
+  const isWatchSession = watchMode || !!watchSession;
+  req.on('close', () => {
+    aborted = true;
+    reviewAbort.abort();  // Cancel any in-flight Ollama request (stops GPU work)
+    // Note: in watch mode, browser stays open — only GPU work is aborted
+  });
+
+  // In watch mode, launch a shared browser + persistent page for the entire review.
+  // For re-triggers, reuse the existing browser from the watch session.
+  let sharedBrowser = null;
+  let sharedPage = null;
+  if (watchSession) {
+    // Re-trigger: reuse existing watch session browser
+    sharedBrowser = watchSession.browser;
+    sharedPage = watchSession.page;
+    watchSession.reviewInProgress = true;
+  } else if (watchMode) {
+    try {
+      sharedBrowser = await launchBrowser({ headless: false });
+      const ctx = await sharedBrowser.newContext({
+        ignoreHTTPSErrors: true,
+        ...(authState ? { storageState: authState } : {}),
+      });
+      sharedPage = await ctx.newPage();
+    } catch (err) {
+      sendEvent(res, 'error', { message: `Failed to launch browser for watch mode: ${err.message}` });
+      if (sharedBrowser) await sharedBrowser.close().catch(() => {});
+      res.end();
+      return;
+    }
+  }
 
   try {
     // Health check
@@ -304,12 +514,43 @@ async function runReview(req, res) {
     for (const page of pages) {
       if (aborted) break;
 
+      // Generate token for pages that require tokenAuth (once per page, reused across viewports)
+      let tokenSuffix = '';
+      const pageLabel = page.name || page.path;
+      if (page.tokenAuth && authState) {
+        try {
+          sendEvent(res, 'progress', {
+            status: 'token',
+            page: pageLabel,
+            message: `Generating auth token for ${pageLabel}...`,
+          });
+          const token = await generatePageToken({ page, baseUrl, authState });
+          if (token) {
+            const sep = page.path.includes('?') ? '&' : '?';
+            tokenSuffix = `${sep}${token.queryParam}=${encodeURIComponent(token.value)}`;
+          }
+        } catch (err) {
+          // Token failure skips all viewports for this page
+          for (const vp of resolvedViewports) {
+            const k = resultKey(page.name, vp.name);
+            report.errors[k] = { message: `Token generation failed: ${err.message}`, timestamp: new Date().toISOString() };
+            sendEvent(res, 'page-error', {
+              page: pageLabel,
+              viewport: vp.name,
+              message: `Token generation failed: ${err.message}`,
+            });
+          }
+          report.updatedAt = new Date().toISOString();
+          saveReport(report);
+          continue;
+        }
+      }
+
       for (const viewport of resolvedViewports) {
         if (aborted) break;
 
         const key = resultKey(page.name, viewport.name);
-        const fullUrl = baseUrl.replace(/\/$/, '') + page.path;
-        const pageLabel = page.name || page.path;
+        const fullUrl = baseUrl.replace(/\/$/, '') + page.path + tokenSuffix;
 
         // Skip already-completed combos
         if (skip.has(key)) {
@@ -346,6 +587,8 @@ async function runReview(req, res) {
             config,
             allowPrivate,
             headless: !watchMode,
+            browser: sharedBrowser || undefined,
+            page: sharedPage || undefined,
             storageState: authState || undefined,
           });
 
@@ -383,6 +626,7 @@ async function runReview(req, res) {
             systemPrompt,
             prompt,
             images: [buffer],
+            signal: reviewAbort.signal,
           });
 
           let result = sanitizeResult(raw, { url: fullUrl, viewport: viewport.name });
@@ -411,6 +655,7 @@ async function runReview(req, res) {
                 systemPrompt: 'You convert UI review text into structured JSON. Respond only with valid JSON.',
                 prompt: reformatPrompt,
                 images: [],
+                signal: reviewAbort.signal,
               });
               const parsed = parseVlmJson(typeof reformatted === 'string' ? reformatted : JSON.stringify(reformatted));
               if (!parsed._raw && Array.isArray(parsed.issues)) {
@@ -447,6 +692,11 @@ async function runReview(req, res) {
           });
 
         } catch (err) {
+          // User cancelled — stop the loop immediately
+          if (err.name === 'AbortError') {
+            aborted = true;
+            break;
+          }
           report.errors[key] = { message: err.message, timestamp: new Date().toISOString() };
           report.updatedAt = new Date().toISOString();
           saveReport(report);
@@ -464,15 +714,80 @@ async function runReview(req, res) {
     report.updatedAt = new Date().toISOString();
     saveReport(report);
 
-    sendEvent(res, 'done', { summary: report.summary, reportId: report.id });
+    try { sendEvent(res, 'done', { summary: report.summary, reportId: report.id }); } catch {}
   } catch (err) {
     report.status = 'error';
     report.updatedAt = new Date().toISOString();
     saveReport(report);
-    sendEvent(res, 'error', { message: err.message });
+    try { sendEvent(res, 'error', { message: err.message }); } catch {};
+  } finally {
+    if (watchSession) {
+      // Re-trigger complete — mark not in-progress but keep browser alive
+      watchSession.reviewInProgress = false;
+    } else if (sharedBrowser && isWatchSession) {
+      // Watch review done (or client disconnected) — store session for re-use
+      const session = {
+        browser: sharedBrowser,
+        page: sharedPage,
+        authState,
+        config,
+        pages,
+        viewports: resolvedViewports,
+        baseUrl,
+        allowPrivate,
+        pollTimer: null,
+        reviewInProgress: false,
+        startedAt: new Date().toISOString(),
+      };
+
+      // Start polling if requested (minimum 60s)
+      if (pollInterval && pollInterval >= 60000) {
+        session.pollTimer = setInterval(() => runPollCycle(report.id), pollInterval);
+      }
+
+      // Auto-recover from browser crashes
+      sharedBrowser.on('disconnected', async () => {
+        const s = watchSessions.get(report.id);
+        if (!s) return; // Already cleaned up
+        try {
+          const newBrowser = await launchBrowser({ headless: false });
+          const ctx = await newBrowser.newContext({
+            ignoreHTTPSErrors: true,
+            ...(s.authState ? { storageState: s.authState } : {}),
+          });
+          s.browser = newBrowser;
+          s.page = await ctx.newPage();
+          // Re-attach disconnect listener to new browser
+          newBrowser.on('disconnected', async () => {
+            const s2 = watchSessions.get(report.id);
+            if (s2) {
+              // Second crash — give up, clean up
+              if (s2.pollTimer) clearInterval(s2.pollTimer);
+              watchSessions.delete(report.id);
+            }
+          });
+        } catch {
+          // Recovery failed — remove watch session
+          if (s.pollTimer) clearInterval(s.pollTimer);
+          watchSessions.delete(report.id);
+        }
+      });
+
+      watchSessions.set(report.id, session);
+      try {
+        sendEvent(res, 'watch-ready', {
+          reportId: report.id,
+          polling: !!session.pollTimer,
+          pollInterval: session.pollTimer ? pollInterval : null,
+        });
+      } catch {} // Client may have disconnected — session still stored
+    } else if (sharedBrowser) {
+      // Non-watch or aborted — close browser
+      await sharedBrowser.close().catch(() => {});
+    }
   }
 
-  res.end();
+  try { res.end(); } catch {}
 }
 
 const JSON_HEADERS = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
@@ -576,6 +891,40 @@ const server = createServer(async (req, res) => {
     return;
   }
 
+  // GET /api/watch — list active watch sessions
+  if (url.pathname === '/api/watch' && req.method === 'GET') {
+    const sessions = [];
+    for (const [reportId, s] of watchSessions) {
+      sessions.push({
+        reportId,
+        baseUrl: s.baseUrl,
+        startedAt: s.startedAt,
+        reviewInProgress: s.reviewInProgress,
+        polling: !!s.pollTimer,
+      });
+    }
+    res.writeHead(200, JSON_HEADERS);
+    res.end(JSON.stringify(sessions));
+    return;
+  }
+
+  // POST /api/watch/:reportId/stop — close browser and remove watch session
+  const watchStopMatch = url.pathname.match(/^\/api\/watch\/([a-z0-9-]+)\/stop$/);
+  if (watchStopMatch && req.method === 'POST') {
+    const session = watchSessions.get(watchStopMatch[1]);
+    if (!session) {
+      res.writeHead(404, JSON_HEADERS);
+      res.end(JSON.stringify({ ok: false, error: 'Watch session not found' }));
+      return;
+    }
+    if (session.pollTimer) clearInterval(session.pollTimer);
+    await session.browser.close().catch(() => {});
+    watchSessions.delete(watchStopMatch[1]);
+    res.writeHead(200, JSON_HEADERS);
+    res.end(JSON.stringify({ ok: true }));
+    return;
+  }
+
   if (url.pathname === '/api/discover' && req.method === 'POST') {
     await runDiscover(req, res);
     return;
@@ -610,3 +959,16 @@ server.listen(PORT, () => {
   console.log(`ui-review server running at http://localhost:${PORT}`);
   console.log(`Reports saved to: ${REPORTS_DIR}`);
 });
+
+/** Graceful shutdown — close all watch session browsers. */
+async function shutdown() {
+  console.log('\nShutting down — closing watch session browsers...');
+  for (const [id, session] of watchSessions) {
+    if (session.pollTimer) clearInterval(session.pollTimer);
+    await session.browser.close().catch(() => {});
+    watchSessions.delete(id);
+  }
+  process.exit(0);
+}
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
