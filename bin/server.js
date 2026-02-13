@@ -81,6 +81,24 @@ function sendEvent(res, event, data) {
   res.write(`data: ${JSON.stringify({ event, ...data })}\n\n`);
 }
 
+/**
+ * Start an SSE keepalive interval that sends comment lines to prevent
+ * Cloudflare tunnel idle timeouts (~100s). SSE comments (lines starting
+ * with ':') are ignored by EventSource clients but keep the connection alive.
+ * @param {import('http').ServerResponse} res
+ * @param {number} intervalMs - keepalive interval (default 15s)
+ * @returns {NodeJS.Timeout} interval handle — call clearInterval() when done
+ */
+function startSSEKeepalive(res, intervalMs = 15_000) {
+  return setInterval(() => {
+    try {
+      res.write(': keepalive\n\n');
+    } catch {
+      // Connection already closed — caller will clean up
+    }
+  }, intervalMs);
+}
+
 /** Read request body as JSON. */
 function readBody(req) {
   return new Promise((resolve, reject) => {
@@ -370,12 +388,18 @@ async function runDiscover(req, res) {
     'Access-Control-Allow-Origin': '*',
   });
 
+  const keepaliveTimer = startSSEKeepalive(res);
+  const endStream = () => {
+    clearInterval(keepaliveTimer);
+    try { res.end(); } catch {}
+  };
+
   let body;
   try {
     body = await readBody(req);
   } catch {
     sendEvent(res, 'error', { message: 'Invalid request body' });
-    res.end();
+    endStream();
     return;
   }
 
@@ -383,7 +407,7 @@ async function runDiscover(req, res) {
 
   if (!baseUrl) {
     sendEvent(res, 'error', { message: 'baseUrl is required' });
-    res.end();
+    endStream();
     return;
   }
 
@@ -402,7 +426,7 @@ async function runDiscover(req, res) {
         });
       } catch (err) {
         sendEvent(res, 'error', { message: `Auto-login failed: ${err.message}` });
-        res.end();
+        endStream();
         return;
       }
     }
@@ -436,7 +460,7 @@ async function runDiscover(req, res) {
     sendEvent(res, 'discover-error', { message: err.message });
   }
 
-  res.end();
+  endStream();
 }
 
 /** Run reviews for pages × viewports, streaming SSE events. */
@@ -448,12 +472,21 @@ async function runReview(req, res) {
     'Access-Control-Allow-Origin': '*',
   });
 
+  // Keep CF tunnel alive during long VLM analysis (70-640s per page)
+  const keepaliveTimer = startSSEKeepalive(res);
+
+  /** Clean up keepalive and end the SSE stream. */
+  const endStream = () => {
+    clearInterval(keepaliveTimer);
+    try { res.end(); } catch {}
+  };
+
   let body;
   try {
     body = await readBody(req);
   } catch {
     sendEvent(res, 'error', { message: 'Invalid request body' });
-    res.end();
+    endStream();
     return;
   }
 
@@ -494,7 +527,7 @@ async function runReview(req, res) {
         });
       } catch (err) {
         sendEvent(res, 'error', { message: `Auto-login failed: ${err.message}` });
-        res.end();
+        endStream();
         return;
       }
     }
@@ -506,7 +539,7 @@ async function runReview(req, res) {
 
   if (!baseUrl || !pages.length) {
     sendEvent(res, 'error', { message: 'baseUrl and at least one page are required' });
-    res.end();
+    endStream();
     return;
   }
 
@@ -518,7 +551,7 @@ async function runReview(req, res) {
 
   if (!resolvedViewports.length) {
     sendEvent(res, 'error', { message: 'No valid viewports selected' });
-    res.end();
+    endStream();
     return;
   }
 
@@ -527,7 +560,7 @@ async function runReview(req, res) {
     config = getOllamaConfig();
   } catch (err) {
     sendEvent(res, 'error', { message: `Config error: ${err.message}` });
-    res.end();
+    endStream();
     return;
   }
 
@@ -537,7 +570,7 @@ async function runReview(req, res) {
     report = loadReport(reportId);
     if (!report) {
       sendEvent(res, 'error', { message: `Report ${reportId} not found` });
-      res.end();
+      endStream();
       return;
     }
     report.updatedAt = new Date().toISOString();
@@ -570,6 +603,7 @@ async function runReview(req, res) {
   const isWatchSession = watchMode || !!watchSession;
   req.on('close', () => {
     aborted = true;
+    clearInterval(keepaliveTimer);
     reviewAbort.abort();  // Cancel any in-flight Ollama request (stops GPU work)
     // Note: in watch mode, browser stays open — only GPU work is aborted
   });
@@ -595,7 +629,7 @@ async function runReview(req, res) {
     } catch (err) {
       sendEvent(res, 'error', { message: `Failed to launch browser for watch mode: ${err.message}` });
       if (sharedBrowser) await sharedBrowser.close().catch(() => {});
-      res.end();
+      endStream();
       return;
     }
   }
@@ -889,7 +923,7 @@ async function runReview(req, res) {
     }
   }
 
-  try { res.end(); } catch {}
+  endStream();
 }
 
 const JSON_HEADERS = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
