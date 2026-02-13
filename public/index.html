@@ -60,10 +60,12 @@
   .page-cap { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-dim); white-space: nowrap; }
   .page-cap select { padding: 4px 6px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface2); color: var(--text); font-size: 12px; }
   .discover-status { font-size: 12px; color: var(--text-dim); padding: 4px 0; }
-  .select-controls { display: flex; gap: 12px; margin-bottom: 8px; font-size: 13px; align-items: center; }
+  .select-controls { display: flex; gap: 12px; margin-bottom: 8px; font-size: 13px; align-items: center; flex-wrap: wrap; }
   .select-controls a { color: var(--accent); cursor: pointer; text-decoration: none; }
   .select-controls a:hover { text-decoration: underline; }
   .select-controls .page-count { margin-left: auto; color: var(--text-dim); font-size: 12px; }
+  .status-filter { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-dim); }
+  .status-filter select { padding: 3px 6px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface2); color: var(--text); font-size: 12px; }
   .page-tree { max-height: 400px; overflow-y: auto; }
   .page-group { margin-bottom: 2px; }
   .page-group-header { display: flex; align-items: center; gap: 6px; padding: 4px 0; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--text); user-select: none; }
@@ -73,7 +75,8 @@
   .page-group-header .group-count { font-size: 11px; color: var(--text-dim); font-weight: 400; }
   .page-group-items { display: none; padding-left: 20px; }
   .page-group-items.open { display: block; }
-  .page-item { display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 3px 0; }
+  .page-item { font-size: 13px; padding: 3px 0; }
+  .page-item-row { display: flex; align-items: center; gap: 6px; }
   .page-item input[type="checkbox"] { accent-color: var(--accent); }
   .page-item .path { color: var(--text-dim); font-family: var(--mono); font-size: 11px; }
   .page-item .status-code { font-size: 10px; padding: 0 4px; border-radius: 3px; font-family: var(--mono); }
@@ -82,6 +85,15 @@
   .page-item .status-code.error { color: var(--critical); background: var(--critical-bg); }
   .page-item.hidden { display: none; }
   .page-item.ungrouped { padding-left: 20px; }
+  .page-item .actions-toggle { font-size: 10px; color: var(--accent); cursor: pointer; margin-left: auto; text-decoration: none; }
+  .page-item .actions-toggle:hover { text-decoration: underline; }
+  .page-item .actions-badge { font-size: 10px; padding: 0 4px; border-radius: 3px; background: rgba(108,140,255,0.15); color: var(--accent); }
+  .actions-editor { display: none; margin: 4px 0 4px 22px; padding: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
+  .actions-editor.open { display: block; }
+  .actions-editor label { font-size: 12px; color: var(--text-dim); display: block; margin-bottom: 4px; }
+  .actions-editor textarea { width: 100%; min-height: 60px; padding: 6px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg); color: var(--text); font-size: 11px; font-family: var(--mono); resize: vertical; box-sizing: border-box; }
+  .actions-editor .actions-hint { font-size: 10px; color: var(--text-dim); margin-top: 4px; }
+  .actions-editor .actions-error { font-size: 10px; color: var(--critical); margin-top: 2px; }
   .custom-page { margin-top: 8px; display: flex; gap: 8px; }
   .custom-page input { flex: 1; padding: 5px 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface2); color: var(--text); font-size: 12px; font-family: var(--mono); }
   .custom-page button { padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface2); color: var(--text); cursor: pointer; font-size: 12px; }
@@ -250,6 +262,15 @@
     <div class="select-controls">
       <a id="selectAll">Select all</a>
       <a id="selectNone">Select none</a>
+      <div class="status-filter">
+        <label for="statusFilter">Status:</label>
+        <select id="statusFilter">
+          <option value="all" selected>All</option>
+          <option value="ok">2xx OK</option>
+          <option value="non-error">2xx + 3xx</option>
+          <option value="error">4xx/5xx only</option>
+        </select>
+      </div>
       <span class="page-count" id="pageCount"></span>
     </div>
     <div class="page-tree" id="pageTree"></div>
@@ -347,7 +368,7 @@
 </div>
 
 <!-- Screenshot zoom overlay -->
-<div class="screenshot-overlay" id="screenshotOverlay" onclick="this.classList.remove('open')">
+<div class="screenshot-overlay" id="screenshotOverlay" onclick="this.classList.remove('open'); document.body.style.overflow = '';">
   <img id="screenshotOverlayImg" src="" alt="Screenshot zoom">
 </div>
 
@@ -385,14 +406,19 @@ let currentReviewController = null;  // AbortController for active review
 let reviewWasPaused = false;  // distinguishes pause from stop
 let currentWatchReportId = null;  // active watch session report ID
 
+// Per-page actions storage: path → actions array
+const pageActions = new Map();
+
 // --- Init ---
 async function init() {
   renderPageTree();
   renderViewports();
-  renderEnvironments();
+  await renderEnvironments();
   setupActions();
   checkHealth();
+  $('#progress').innerHTML = '<span class="spinner"></span> Loading latest report...';
   await loadLatestReport();
+  $('#progress').innerHTML = '';
 }
 
 // --- Health check ---
@@ -486,7 +512,7 @@ function renderPageTree() {
     tree.appendChild(group);
   }
 
-  updatePageCount();
+  applyPageFilters();
 }
 
 function createPageItem(page, ungrouped) {
@@ -494,6 +520,7 @@ function createPageItem(page, ungrouped) {
   div.className = 'page-item' + (ungrouped ? ' ungrouped' : '');
   div.dataset.path = page.path;
   div.dataset.name = page.name;
+  div.dataset.status = page.status || 0;
 
   let statusBadge = '';
   if (page.status > 0) {
@@ -501,42 +528,129 @@ function createPageItem(page, ungrouped) {
     statusBadge = `<span class="status-code ${cls}">${page.status}</span>`;
   }
 
+  const existing = pageActions.get(page.path);
+  const actionsBadge = existing?.length ? `<span class="actions-badge">${existing.length} action${existing.length > 1 ? 's' : ''}</span>` : '';
+
   div.innerHTML = `
-    <input type="checkbox" checked data-path="${escAttr(page.path)}" data-name="${escAttr(page.name)}">
-    <span>${escHtml(page.name)}</span>
-    <span class="path">${escHtml(page.path)}</span>
-    ${statusBadge}
+    <div class="page-item-row">
+      <input type="checkbox" checked data-path="${escAttr(page.path)}" data-name="${escAttr(page.name)}">
+      <span>${escHtml(page.name)}</span>
+      <span class="path">${escHtml(page.path)}</span>
+      ${statusBadge}
+      ${actionsBadge}
+      <a class="actions-toggle" href="#">actions</a>
+    </div>
+    <div class="actions-editor">
+      <label>Pre-screenshot actions (JSON array):</label>
+      <textarea placeholder='[{ "click": ".btn" }, { "wait": ".modal" }]'>${existing ? JSON.stringify(existing, null, 2) : ''}</textarea>
+      <div class="actions-hint">Types: click, fill (+value), hover, wait, select (+value), press, delay, waitForNavigation</div>
+      <div class="actions-error"></div>
+    </div>
   `;
 
   div.querySelector('input').addEventListener('change', updatePageCount);
+
+  const toggle = div.querySelector('.actions-toggle');
+  const editor = div.querySelector('.actions-editor');
+  toggle.addEventListener('click', (e) => {
+    e.preventDefault();
+    editor.classList.toggle('open');
+  });
+
+  const textarea = div.querySelector('textarea');
+  const errorEl = div.querySelector('.actions-error');
+  textarea.addEventListener('change', () => {
+    const text = textarea.value.trim();
+    errorEl.textContent = '';
+    if (!text) {
+      pageActions.delete(page.path);
+      const badge = div.querySelector('.actions-badge');
+      if (badge) badge.remove();
+      return;
+    }
+    try {
+      const parsed = JSON.parse(text);
+      if (!Array.isArray(parsed)) throw new Error('Must be a JSON array');
+      pageActions.set(page.path, parsed);
+      let badge = div.querySelector('.actions-badge');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.className = 'actions-badge';
+        div.querySelector('.path').after(badge);
+      }
+      badge.textContent = `${parsed.length} action${parsed.length > 1 ? 's' : ''}`;
+      errorEl.textContent = '';
+    } catch (err) {
+      errorEl.textContent = err.message;
+      pageActions.delete(page.path);
+    }
+  });
+
   return div;
 }
 
 function updatePageCount() {
-  const total = $$('#pageTree input[type="checkbox"][data-path]').length;
-  const checked = $$('#pageTree input[type="checkbox"][data-path]:checked').length;
-  $('#pageCount').textContent = `${checked} of ${total} selected`;
+  const all = $$('#pageTree input[type="checkbox"][data-path]');
+  const visible = $$('#pageTree .page-item:not(.hidden) input[type="checkbox"][data-path]');
+  const checked = $$('#pageTree .page-item:not(.hidden) input[type="checkbox"][data-path]:checked');
+  const suffix = visible.length < all.length ? ` (${all.length} total)` : '';
+  $('#pageCount').textContent = `${checked.length} of ${visible.length} selected${suffix}`;
 }
 
-// Search/filter
-$('#pageSearch').addEventListener('input', (e) => {
-  const query = e.target.value.toLowerCase();
+// Combined search + status filter
+function applyPageFilters() {
+  const query = $('#pageSearch').value.toLowerCase();
+  const statusFilter = $('#statusFilter').value;
+
   $$('#pageTree .page-item').forEach(item => {
     const name = (item.dataset.name || '').toLowerCase();
     const path = (item.dataset.path || '').toLowerCase();
-    const match = !query || name.includes(query) || path.includes(query);
-    item.classList.toggle('hidden', !match);
+    const status = parseInt(item.dataset.status || '0', 10);
+
+    // Text search match
+    const textMatch = !query || name.includes(query) || path.includes(query);
+
+    // Status filter match
+    let statusMatch = true;
+    if (statusFilter === 'ok') statusMatch = status >= 200 && status < 300;
+    else if (statusFilter === 'non-error') statusMatch = status > 0 && status < 400;
+    else if (statusFilter === 'error') statusMatch = status >= 400;
+
+    item.classList.toggle('hidden', !(textMatch && statusMatch));
   });
+
   // Show groups that have visible children
   $$('#pageTree .page-group').forEach(group => {
     const visibleItems = group.querySelectorAll('.page-item:not(.hidden)');
     group.style.display = visibleItems.length > 0 ? '' : 'none';
   });
+
+  updatePageCount();
+}
+
+$('#pageSearch').addEventListener('input', applyPageFilters);
+$('#statusFilter').addEventListener('change', () => {
+  applyPageFilters();
+  // Auto-deselect hidden items and select visible ones when filter changes
+  $$('#pageTree .page-item').forEach(item => {
+    const cb = item.querySelector('input[type="checkbox"]');
+    if (cb) cb.checked = !item.classList.contains('hidden');
+  });
+  // Update group checkboxes
+  $$('#pageTree .page-group').forEach(group => {
+    const groupCb = group.querySelector('[data-group-toggle]');
+    const childCbs = group.querySelectorAll('.page-group-items input[type="checkbox"]');
+    if (groupCb && childCbs.length) {
+      groupCb.checked = [...childCbs].some(cb => cb.checked);
+    }
+  });
+  updatePageCount();
 });
 
-// Select all / none
+// Select all / none (only affects visible items)
 $('#selectAll').addEventListener('click', () => {
-  $$('#pageTree input[type="checkbox"]').forEach(cb => cb.checked = true);
+  $$('#pageTree .page-item:not(.hidden) input[type="checkbox"]').forEach(cb => cb.checked = true);
+  $$('#pageTree [data-group-toggle]').forEach(cb => cb.checked = true);
   updatePageCount();
 });
 $('#selectNone').addEventListener('click', () => {
@@ -588,7 +702,16 @@ async function startDiscovery() {
     const response = await fetch('/api/discover', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ baseUrl, maxPages, allowPrivate, authState: currentAuthState }),
+      body: JSON.stringify((() => {
+        const b = { baseUrl, maxPages, allowPrivate, authState: currentAuthState };
+        if (!currentAuthState) {
+          const loginUrl = $('#loginUrl').value.trim();
+          const username = $('#authUser').value.trim();
+          const password = $('#authPass').value;
+          if (loginUrl && username && password) b.credentials = { loginUrl, username, password };
+        }
+        return b;
+      })()),
     });
 
     const reader = response.body.getReader();
@@ -618,6 +741,12 @@ async function startDiscovery() {
             (msg.pagesSkipped > 0 ? ` (${msg.pagesSkipped} skipped, cap reached)` : '');
         } else if (msg.event === 'discover-error') {
           statusEl.textContent = `Discovery error: ${msg.message}`;
+        } else if (msg.event === 'auth-ready') {
+          currentAuthState = msg.storageState;
+          $('#authIndicator').textContent = 'authenticated';
+          $('#authIndicator').className = 'auth-status ok';
+          $('#authStatus').textContent = `Auto-login: ${msg.cookies} cookie${msg.cookies !== 1 ? 's' : ''}`;
+          $('#authStatus').className = 'auth-status ok';
         }
       }
     }
@@ -736,14 +865,25 @@ async function loadStorageState(e) {
   }
 }
 
-// --- Saved Environments (localStorage) ---
+// --- Saved Environments (server API + localStorage fallback) ---
 function getDefaultEnvironments() {
   return [
     { name: 'Localhost', url: 'http://localhost:8081' },
   ];
 }
 
-function loadEnvironments() {
+async function loadEnvironments() {
+  try {
+    const res = await fetch('/api/environments');
+    if (res.ok) {
+      const envs = await res.json();
+      if (Array.isArray(envs) && envs.length > 0) {
+        localStorage.setItem(STORAGE_KEY_ENVS, JSON.stringify(envs));
+        return envs;
+      }
+    }
+  } catch {}
+  // Fallback to localStorage
   try {
     const stored = localStorage.getItem(STORAGE_KEY_ENVS);
     if (stored) {
@@ -754,18 +894,34 @@ function loadEnvironments() {
   return getDefaultEnvironments();
 }
 
-function saveEnvironments(envs) {
+async function saveEnvironments(envs) {
   localStorage.setItem(STORAGE_KEY_ENVS, JSON.stringify(envs));
+  // Sync each environment to server
+  for (const env of envs) {
+    try {
+      await fetch(`/api/environments/${encodeURIComponent(env.name)}/state`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(env),
+      });
+    } catch {}
+  }
 }
 
-function renderEnvironments() {
+async function deleteEnvironment(name) {
+  try {
+    await fetch(`/api/environments/${encodeURIComponent(name)}`, { method: 'DELETE' });
+  } catch {}
+}
+
+async function renderEnvironments() {
   const bar = $('#envBar');
   const urlInput = $('#baseUrl');
 
   // Remove existing buttons (keep the url input)
   bar.querySelectorAll('.env-btn, .env-add-btn').forEach(el => el.remove());
 
-  const envs = loadEnvironments();
+  const envs = await loadEnvironments();
 
   envs.forEach((env, idx) => {
     const btn = document.createElement('button');
@@ -785,23 +941,27 @@ function renderEnvironments() {
       } catch {}
     });
 
-    btn.addEventListener('dblclick', () => {
+    btn.addEventListener('dblclick', async () => {
       const newName = prompt('Environment name:', env.name);
       if (newName === null) return;
       const newUrl = prompt('URL:', env.url);
       if (newUrl === null) return;
-      const envs = loadEnvironments();
+      const oldName = env.name;
+      const envs = await loadEnvironments();
       envs[idx] = { name: newName.trim() || env.name, url: newUrl.trim() };
-      saveEnvironments(envs);
-      renderEnvironments();
+      if (oldName !== newName.trim()) await deleteEnvironment(oldName);
+      await saveEnvironments(envs);
+      await renderEnvironments();
     });
 
-    btn.querySelector('.remove-env').addEventListener('click', (e) => {
+    btn.querySelector('.remove-env').addEventListener('click', async (e) => {
       e.stopPropagation();
-      const envs = loadEnvironments();
+      const removedName = env.name;
+      const envs = await loadEnvironments();
       envs.splice(idx, 1);
-      saveEnvironments(envs);
-      renderEnvironments();
+      await deleteEnvironment(removedName);
+      await saveEnvironments(envs);
+      await renderEnvironments();
     });
 
     bar.insertBefore(btn, urlInput);
@@ -811,15 +971,15 @@ function renderEnvironments() {
   const addBtn = document.createElement('button');
   addBtn.className = 'env-add-btn';
   addBtn.textContent = '+ Add';
-  addBtn.addEventListener('click', () => {
+  addBtn.addEventListener('click', async () => {
     const name = prompt('Environment name (e.g. "Staging", "Production"):');
     if (!name) return;
     const url = prompt('URL:', 'https://');
     if (!url) return;
-    const envs = loadEnvironments();
+    const envs = await loadEnvironments();
     envs.push({ name: name.trim(), url: url.trim() });
-    saveEnvironments(envs);
-    renderEnvironments();
+    await saveEnvironments(envs);
+    await renderEnvironments();
     // Select the new one
     $('#baseUrl').value = url.trim();
     bar.querySelectorAll('.env-btn').forEach(b => b.classList.remove('active'));
@@ -1059,6 +1219,7 @@ async function stopWatch() {
   } catch {}
   currentWatchReportId = null;
   $('#watchPanel').style.display = 'none';
+}
 
 function setReviewButtons(state) {
   const runBtn = $('#runBtn');
@@ -1071,6 +1232,12 @@ function setReviewButtons(state) {
     pauseBtn.style.display = '';
     stopBtn.style.display = '';
     resumeBtn.style.display = 'none';
+  } else if (state === 'paused') {
+    runBtn.style.display = 'none';
+    pauseBtn.style.display = 'none';
+    stopBtn.style.display = 'none';
+    resumeBtn.style.display = '';
+    resumeBtn.textContent = 'Resume';
   } else {
     runBtn.style.display = '';
     runBtn.disabled = false;
@@ -1096,7 +1263,10 @@ function stopReview() {
 function getSelectedPages() {
   const pages = [];
   $$('#pageTree input[type="checkbox"][data-path]:checked').forEach(cb => {
-    pages.push({ name: cb.dataset.name, path: cb.dataset.path });
+    const page = { name: cb.dataset.name, path: cb.dataset.path };
+    const actions = pageActions.get(cb.dataset.path);
+    if (actions && actions.length > 0) page.actions = actions;
+    pages.push(page);
   });
   return pages;
 }
@@ -1245,6 +1415,16 @@ async function startReview(resume) {
   const watchMode = $('#watchMode').checked;
   const pollInterval = watchMode ? parseInt($('#pollSelect').value, 10) || 0 : 0;
   const body = { baseUrl, pages, viewports, allowPrivate, watchMode, pollInterval, authState: currentAuthState };
+
+  // Auto-auth: if credentials filled but not yet authenticated, send them
+  if (!currentAuthState) {
+    const loginUrl = $('#loginUrl').value.trim();
+    const username = $('#authUser').value.trim();
+    const password = $('#authPass').value;
+    if (loginUrl && username && password) {
+      body.credentials = { loginUrl, username, password };
+    }
+  }
   if (resume && currentReportId) {
     body.reportId = currentReportId;
     // skipCompleted is built server-side from existing results
@@ -1305,6 +1485,13 @@ async function startReview(resume) {
         } else if (msg.event === 'error') {
           progressEl.innerHTML = '';
           renderErrorCard({ page: 'System', message: msg.message }, resultsEl);
+        } else if (msg.event === 'auth-ready') {
+          // Server performed auto-login — cache the auth state
+          currentAuthState = msg.storageState;
+          $('#authIndicator').textContent = 'authenticated';
+          $('#authIndicator').className = 'auth-status ok';
+          $('#authStatus').textContent = `Auto-login: ${msg.cookies} cookie${msg.cookies !== 1 ? 's' : ''}`;
+          $('#authStatus').className = 'auth-status ok';
         } else if (msg.event === 'watch-ready') {
           // Show watch mode controls
           $('#watchPanel').style.display = '';
@@ -1337,7 +1524,7 @@ async function startReview(resume) {
   }
 
   currentReviewController = null;
-  setReviewButtons('idle');
+  setReviewButtons(reviewWasPaused ? 'paused' : 'idle');
 
   // After abort, refresh report info to get accurate status and show Resume button
   if (wasAborted && currentReportId) {
@@ -1419,7 +1606,7 @@ function renderResultCard(msg, container) {
   const screenshotPanel = screenshotUrl
     ? `<div class="screenshot-panel">
         <img src="${escAttr(screenshotUrl)}" alt="Screenshot of ${escAttr(msg.page)}" loading="lazy"
-             onclick="document.getElementById('screenshotOverlayImg').src=this.src; document.getElementById('screenshotOverlay').classList.add('open');">
+             onclick="document.getElementById('screenshotOverlayImg').src=this.src; document.getElementById('screenshotOverlay').classList.add('open'); document.body.style.overflow='hidden';">
        </div>`
     : '';
 
@@ -1508,6 +1695,7 @@ function escAttr(s) {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     document.getElementById('screenshotOverlay').classList.remove('open');
+    document.body.style.overflow = '';
   }
 });
 

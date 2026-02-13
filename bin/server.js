@@ -2,7 +2,7 @@
 
 import 'dotenv/config';
 import { createServer } from 'node:http';
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import { loadConfig, VIEWPORTS } from '../lib/config.js';
 import { healthCheck, prewarm, analyze, parseVlmJson } from '../lib/ollama.js';
@@ -17,8 +17,58 @@ const PORT = parseInt(process.argv.find((_, i, a) => a[i - 1] === '--port') || '
 const PUBLIC_DIR = join(import.meta.dirname, '..', 'public');
 const REPORTS_DIR = join(import.meta.dirname, '..', 'reports');
 
-// Ensure reports directory exists
+const ENVS_DIR = join(import.meta.dirname, '..', 'data', 'environments');
+
+// Ensure directories exist
 mkdirSync(REPORTS_DIR, { recursive: true });
+mkdirSync(ENVS_DIR, { recursive: true });
+
+// --- Environment State Persistence ---
+
+function slugify(name) {
+  return name.replace(/[^a-z0-9_-]/gi, '_').toLowerCase();
+}
+
+function listEnvironments() {
+  if (!existsSync(ENVS_DIR)) return [];
+  return readdirSync(ENVS_DIR)
+    .filter(f => f.endsWith('.json'))
+    .map(f => {
+      try {
+        const data = JSON.parse(readFileSync(join(ENVS_DIR, f), 'utf8'));
+        return {
+          name: data.name,
+          url: data.url,
+          lastDiscoveredAt: data.lastDiscoveredAt,
+          updatedAt: data.updatedAt,
+          pageCount: (data.discoveredPages || []).length,
+        };
+      } catch { return null; }
+    })
+    .filter(Boolean);
+}
+
+function loadEnvironmentState(name) {
+  const filePath = join(ENVS_DIR, `${slugify(name)}.json`);
+  if (!existsSync(filePath)) return null;
+  try {
+    return JSON.parse(readFileSync(filePath, 'utf8'));
+  } catch {
+    return null;
+  }
+}
+
+function saveEnvironmentState(name, data) {
+  const filePath = join(ENVS_DIR, `${slugify(name)}.json`);
+  writeFileSync(filePath, JSON.stringify(data, null, 2));
+}
+
+function deleteEnvironmentState(name) {
+  const filePath = join(ENVS_DIR, `${slugify(name)}.json`);
+  try {
+    unlinkSync(filePath);
+  } catch {}
+}
 
 /**
  * Active watch sessions — browser persists across SSE request cycles.
@@ -245,6 +295,7 @@ async function runPollCycle(reportId) {
             headless: false,
             browser,
             page: sharedPage,
+            actions: pg.actions || undefined,
           });
 
           // Compare with previous screenshot
@@ -328,12 +379,33 @@ async function runDiscover(req, res) {
     return;
   }
 
-  const { baseUrl, maxPages = 50, allowPrivate = false, authState } = body;
+  let { baseUrl, maxPages = 50, allowPrivate = false, authState, credentials } = body;
 
   if (!baseUrl) {
     sendEvent(res, 'error', { message: 'baseUrl is required' });
     res.end();
     return;
+  }
+
+  // Auto-auth: if credentials provided but no authState, perform login automatically
+  if (credentials && !authState) {
+    const { loginUrl, username, password } = credentials;
+    if (baseUrl && loginUrl && username && password) {
+      try {
+        sendEvent(res, 'discover-progress', { message: `Logging in to ${loginUrl}...` });
+        const loginResult = await executeLogin({ baseUrl, loginUrl, username, password, allowPrivate });
+        authState = loginResult.storageState;
+        sendEvent(res, 'auth-ready', {
+          storageState: loginResult.storageState,
+          cookies: loginResult.cookies,
+          redirectedTo: loginResult.redirectedTo,
+        });
+      } catch (err) {
+        sendEvent(res, 'error', { message: `Auto-login failed: ${err.message}` });
+        res.end();
+        return;
+      }
+    }
   }
 
   const controller = new AbortController();
@@ -385,7 +457,7 @@ async function runReview(req, res) {
     return;
   }
 
-  const {
+  let {
     baseUrl: bodyBaseUrl,
     pages: bodyPages = [],
     viewports = ['desktop'],
@@ -395,10 +467,38 @@ async function runReview(req, res) {
     watchMode = false,
     pollInterval,   // Optional polling interval in ms (min 60000)
     authState,
+    credentials,    // Optional: { loginUrl, username, password } for auto-login
   } = body;
 
   // Check if this is a watch session re-trigger
   const watchSession = reportId ? watchSessions.get(reportId) : null;
+
+  // Auto-auth: if credentials provided but no authState, perform login automatically
+  if (credentials && !authState && !watchSession) {
+    const { loginUrl, username, password } = credentials;
+    if (loginUrl && username && password) {
+      try {
+        sendEvent(res, 'progress', { status: 'auto-login', message: `Logging in to ${loginUrl}...` });
+        const loginResult = await executeLogin({
+          baseUrl: bodyBaseUrl,
+          loginUrl,
+          username,
+          password,
+          allowPrivate,
+        });
+        authState = loginResult.storageState;
+        sendEvent(res, 'auth-ready', {
+          storageState: loginResult.storageState,
+          cookies: loginResult.cookies,
+          redirectedTo: loginResult.redirectedTo,
+        });
+      } catch (err) {
+        sendEvent(res, 'error', { message: `Auto-login failed: ${err.message}` });
+        res.end();
+        return;
+      }
+    }
+  }
 
   // For re-triggers, use stored values; for new reviews, use request body
   const baseUrl = watchSession?.baseUrl || bodyBaseUrl;
@@ -451,7 +551,7 @@ async function runReview(req, res) {
       updatedAt: new Date().toISOString(),
       status: 'running',
       config: { model: config.model, viewports },
-      pages: pages.map(p => ({ name: p.name, path: p.path })),
+      pages: pages.map(p => ({ name: p.name, path: p.path, ...(p.actions?.length ? { actions: p.actions } : {}) })),
       totalExpected: pages.length * resolvedViewports.length,
       results: {},   // keyed by "pageName::viewport"
       errors: {},    // keyed by "pageName::viewport"
@@ -590,6 +690,7 @@ async function runReview(req, res) {
             browser: sharedBrowser || undefined,
             page: sharedPage || undefined,
             storageState: authState || undefined,
+            actions: page.actions || undefined,
           });
 
           // Save screenshot to disk
@@ -932,6 +1033,58 @@ const server = createServer(async (req, res) => {
 
   if (url.pathname === '/api/review' && req.method === 'POST') {
     await runReview(req, res);
+    return;
+  }
+
+  // --- Environment State Persistence ---
+
+  // GET /api/environments — list saved environments
+  if (url.pathname === '/api/environments' && req.method === 'GET') {
+    const envs = listEnvironments();
+    res.writeHead(200, JSON_HEADERS);
+    res.end(JSON.stringify(envs));
+    return;
+  }
+
+  // GET /api/environments/:name/state — get full state for an environment
+  const envStateGetMatch = url.pathname.match(/^\/api\/environments\/([^/]+)\/state$/);
+  if (envStateGetMatch && req.method === 'GET') {
+    const envName = decodeURIComponent(envStateGetMatch[1]);
+    const state = loadEnvironmentState(envName);
+    if (state) {
+      res.writeHead(200, JSON_HEADERS);
+      res.end(JSON.stringify(state));
+    } else {
+      res.writeHead(404, JSON_HEADERS);
+      res.end(JSON.stringify({ error: 'Environment not found' }));
+    }
+    return;
+  }
+
+  // POST /api/environments/:name/state — save state
+  if (envStateGetMatch && req.method === 'POST') {
+    try {
+      const envName = decodeURIComponent(envStateGetMatch[1]);
+      const body = await readBody(req);
+      body.updatedAt = new Date().toISOString();
+      if (!body.name) body.name = envName;
+      saveEnvironmentState(envName, body);
+      res.writeHead(200, JSON_HEADERS);
+      res.end(JSON.stringify({ ok: true }));
+    } catch (err) {
+      res.writeHead(500, JSON_HEADERS);
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
+  // DELETE /api/environments/:name — remove environment
+  const envDeleteMatch = url.pathname.match(/^\/api\/environments\/([^/]+)$/);
+  if (envDeleteMatch && req.method === 'DELETE') {
+    const envName = decodeURIComponent(envDeleteMatch[1]);
+    deleteEnvironmentState(envName);
+    res.writeHead(200, JSON_HEADERS);
+    res.end(JSON.stringify({ ok: true }));
     return;
   }
 
