@@ -1,0 +1,70 @@
+{
+  "id": "review-1770930836968",
+  "baseUrl": "http://localhost:8081",
+  "createdAt": "2026-02-12T21:13:56.968Z",
+  "updatedAt": "2026-02-12T21:13:56.968Z",
+  "status": "running",
+  "config": {
+    "model": "qwen3-vl:8b",
+    "viewports": [
+      "desktop",
+      "mobile"
+    ]
+  },
+  "pages": [
+    {
+      "name": "Home",
+      "path": "/"
+    },
+    {
+      "name": "Login",
+      "path": "/login.php"
+    },
+    {
+      "name": "Player Portal",
+      "path": "/player_portal.html"
+    },
+    {
+      "name": "Dashboard",
+      "path": "/player_dashboard.php"
+    },
+    {
+      "name": "Player Profile",
+      "path": "/player_profile.html"
+    },
+    {
+      "name": "Submit Score",
+      "path": "/player_submit.html"
+    },
+    {
+      "name": "Tournament Entry",
+      "path": "/tournament_entry.html"
+    },
+    {
+      "name": "Leaderboard",
+      "path": "/tournament_leaderboard.html"
+    },
+    {
+      "name": "Archive",
+      "path": "/tournament_archive.html"
+    },
+    {
+      "name": "Game Leaderboards",
+      "path": "/game_leaderboards.html"
+    },
+    {
+      "name": "Global Rankings",
+      "path": "/global_rankings.html"
+    }
+  ],
+  "totalExpected": 22,
+  "results": {},
+  "errors": {},
+  "summary": {
+    "pages": 0,
+    "issues": 0,
+    "critical": 0,
+    "warning": 0,
+    "suggestion": 0
+  }
+}

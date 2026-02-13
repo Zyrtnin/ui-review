@@ -1,0 +1,74 @@
+{
+  "id": "review-1770965510957",
+  "baseUrl": "http://localhost:8081",
+  "createdAt": "2026-02-13T06:51:50.957Z",
+  "updatedAt": "2026-02-13T06:52:37.167Z",
+  "status": "complete",
+  "config": {
+    "model": "qwen3-vl:8b",
+    "viewports": [
+      "desktop"
+    ]
+  },
+  "pages": [
+    {
+      "name": "Home",
+      "path": "/"
+    }
+  ],
+  "totalExpected": 1,
+  "results": {
+    "Home::desktop": {
+      "url": "http://localhost:8081/",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "top button (RESUME TOURNAMENT)",
+          "description": "Long timestamp causes potential horizontal overflow and poor readability",
+          "recommendation": "Shorten timestamp or wrap text to fit within button width"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "top button (RESUME TOURNAMENT)",
+          "description": "Inconsistent text length compared to other buttons disrupts visual rhythm",
+          "recommendation": "Standardize text length or use ellipsis for truncated text"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "top button (RESUME TOURNAMENT)",
+          "description": "Non-essential timestamp distracts from primary actions (NEW TOURNAMENT)",
+          "recommendation": "Prioritize primary actions and hide secondary details like timestamps"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "top button (RESUME TOURNAMENT)",
+          "description": "Long text causes uneven vertical spacing between buttons",
+          "recommendation": "Adjust button width or text length to maintain consistent spacing"
+        },
+        {
+          "severity": "suggestion",
+          "category": "components",
+          "location": "middle buttons (MANAGE GAMES, MANAGE TEAMS)",
+          "description": "Numeric counts (0) instead of descriptive text reduce clarity",
+          "recommendation": "Replace (0) with 'No games' or similar descriptive text"
+        }
+      ],
+      "summary": "The 'RESUME TOURNAMENT' button's long timestamp causes layout/typography issues, while numeric counts in 'MANAGE GAMES'/'MANAGE TEAMS' reduce clarity. Visual hierarchy is weakened by non-essential details.",
+      "_raw": false,
+      "screenshot": "screenshots/home_desktop.png"
+    }
+  },
+  "errors": {},
+  "summary": {
+    "pages": 1,
+    "issues": 5,
+    "critical": 0,
+    "warning": 4,
+    "suggestion": 1
+  }
+}

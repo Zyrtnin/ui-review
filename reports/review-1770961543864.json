@@ -1,0 +1,555 @@
+{
+  "id": "review-1770961543864",
+  "baseUrl": "https://test.flipperhub.app",
+  "createdAt": "2026-02-13T05:45:43.864Z",
+  "updatedAt": "2026-02-13T06:02:43.024Z",
+  "status": "running",
+  "config": {
+    "model": "qwen3-vl:8b",
+    "viewports": [
+      "desktop",
+      "mobile"
+    ]
+  },
+  "pages": [
+    {
+      "name": "Home",
+      "path": "/"
+    },
+    {
+      "name": "Profile",
+      "path": "/profile.php"
+    },
+    {
+      "name": "Manage users",
+      "path": "/manage_users.php"
+    },
+    {
+      "name": "Login history",
+      "path": "/login_history.php"
+    },
+    {
+      "name": "Logout",
+      "path": "/logout.php"
+    },
+    {
+      "name": "Test ai config",
+      "path": "/test_ai_config.php"
+    },
+    {
+      "name": "Api",
+      "path": "/api.php"
+    },
+    {
+      "name": "Index",
+      "path": "/index.html"
+    },
+    {
+      "name": "Player portal simple",
+      "path": "/player_portal_simple.html"
+    },
+    {
+      "name": "Admin batch ai extract",
+      "path": "/admin_batch_ai_extract.php"
+    },
+    {
+      "name": "Check auth",
+      "path": "/check_auth.php"
+    },
+    {
+      "name": "Player dashboard",
+      "path": "/player_dashboard.php"
+    },
+    {
+      "name": "Login",
+      "path": "/login.php"
+    },
+    {
+      "name": "Index",
+      "path": "/index.php"
+    },
+    {
+      "name": "Setup mfa",
+      "path": "/setup_mfa.php"
+    },
+    {
+      "name": "Forgot password",
+      "path": "/forgot_password.php"
+    },
+    {
+      "name": "Tournament leaderboard",
+      "path": "/tournament_leaderboard.html"
+    },
+    {
+      "name": "Check login",
+      "path": "/check_login.php"
+    },
+    {
+      "name": "Player api",
+      "path": "/player_api.php"
+    },
+    {
+      "name": "Load player data",
+      "path": "/load_player_data.php"
+    },
+    {
+      "name": "Register player",
+      "path": "/register_player.php"
+    },
+    {
+      "name": "Upload score photo",
+      "path": "/upload_score_photo.php"
+    },
+    {
+      "name": "Player submit",
+      "path": "/player_submit.php"
+    },
+    {
+      "name": "Save draft submission",
+      "path": "/save_draft_submission.php"
+    },
+    {
+      "name": "Request unlock",
+      "path": "/request_unlock.php"
+    },
+    {
+      "name": "Cancel unlock request",
+      "path": "/cancel_unlock_request.php"
+    },
+    {
+      "name": "Retract submission",
+      "path": "/retract_submission.php"
+    },
+    {
+      "name": "Tournament api",
+      "path": "/tournament_api.php"
+    },
+    {
+      "name": "Player portal",
+      "path": "/player_portal.html"
+    },
+    {
+      "name": "Terms",
+      "path": "/terms.html"
+    },
+    {
+      "name": "Privacy",
+      "path": "/privacy.html"
+    },
+    {
+      "name": "Register",
+      "path": "/register.php"
+    }
+  ],
+  "totalExpected": 64,
+  "results": {
+    "Home::desktop": {
+      "url": "https://test.flipperhub.app/",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "below logo banner",
+          "description": "Main title 'FLIPPERHUB' is redundant as the logo banner already displays the same name",
+          "recommendation": "Remove the main title to avoid duplication"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "below main title",
+          "description": "'Tournament Management System' subtitle is too small and not bolded, reducing visual hierarchy",
+          "recommendation": "Increase font size and apply bold to the subtitle"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between logo banner and main title",
+          "description": "Vertical spacing between logo banner and main title is too tight",
+          "recommendation": "Increase vertical padding between logo banner and title"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "to the right of checkbox",
+          "description": "'Forgot password?' link is positioned too close to the checkbox, creating a cramped layout",
+          "recommendation": "Align 'Forgot password?' link with the checkbox on the same line with appropriate spacing"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "below password field",
+          "description": "Vertical spacing between password input field and 'Remember me' checkbox is too small",
+          "recommendation": "Increase vertical padding between password field and checkbox"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "next to checkbox",
+          "description": "'Remember me' label text is smaller than input field labels, reducing consistency",
+          "recommendation": "Increase font size of 'Remember me' label to match input field labels"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "above input fields",
+          "description": "Input field labels ('USERNAME OR EMAIL', 'PASSWORD') are not bolded, making them less prominent",
+          "recommendation": "Apply bold styling to input field labels"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "below checkbox",
+          "description": "'LOGIN' button is too small for the primary action",
+          "recommendation": "Increase button height and width to match standard login button size"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "inside light container",
+          "description": "Container padding is too small, causing elements to feel cramped",
+          "recommendation": "Increase padding inside the light container to improve spacing"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "logo banner",
+          "description": "Logo banner text 'FLIPPERHUB' is too large and not aligned with the main title",
+          "recommendation": "Adjust logo banner text size and alignment to match the main title"
+        }
+      ],
+      "summary": "The login page has redundant elements, inconsistent spacing, and poor visual hierarchy that reduce usability and professionalism.",
+      "_raw": false,
+      "screenshot": "screenshots/home_desktop.png"
+    },
+    "Home::mobile": {
+      "url": "https://test.flipperhub.app/",
+      "viewport": "mobile",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "logo section and main title area",
+          "description": "Logo section and main title both display \"FLIPPERHUB\", creating visual redundancy. The main title should be a distinct heading.",
+          "recommendation": "Remove the main title \"FLIPPERHUB\" and replace it with a unique heading (e.g., \"Login to FlipperHub\") to establish clear hierarchy"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "subtitle area",
+          "description": "Subtitle \"Tournament Management System\" is too small and lacks emphasis, making it less noticeable than the main title.",
+          "recommendation": "Increase the font size of the subtitle to 16px or larger and apply a subtle style (e.g., lighter weight) to differentiate it from the main title"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "\"Remember me\" checkbox",
+          "description": "The \"Remember me\" checkbox has a small touch target (likely <48x48px), making it difficult to tap on mobile.",
+          "recommendation": "Increase the touch target size to at least 48x48px by expanding the checkbox area or adding padding"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between password field and \"Remember me\" checkbox",
+          "description": "Insufficient vertical spacing between the password field and the \"Remember me\" checkbox reduces readability.",
+          "recommendation": "Add 8-16px of vertical spacing between the password field and the checkbox"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "logo section and main title",
+          "description": "The logo and main title use identical text, so the user cannot distinguish between the brand mark and the page title.",
+          "recommendation": "Make the main title a distinct heading (e.g., different font size/weight) to establish hierarchy"
+        },
+        {
+          "severity": "warning",
+          "category": "accessibility",
+          "location": "\"Remember me\" checkbox",
+          "description": "The \"Remember me\" checkbox has a small touch target, making it inaccessible on mobile.",
+          "recommendation": "Increase the touch target size to at least 48x48px"
+        },
+        {
+          "severity": "suggestion",
+          "category": "components",
+          "location": "\"Forgot password?\" link",
+          "description": "The \"Forgot password?\" link is placed next to the checkbox without consistent alignment, causing visual inconsistency.",
+          "recommendation": "Align the \"Forgot password?\" link with the checkbox (e.g., vertically centered) and ensure consistent spacing"
+        },
+        {
+          "severity": "suggestion",
+          "category": "spacing",
+          "location": "between \"LOGIN\" button and form elements",
+          "description": "The \"LOGIN\" button is positioned too close to the form elements, reducing perceived separation.",
+          "recommendation": "Add 16px of vertical spacing between the form elements and the \"LOGIN\" button"
+        },
+        {
+          "severity": "suggestion",
+          "category": "typography",
+          "location": "main title area",
+          "description": "The main title \"FLIPPERHUB\" is the same as the logo text, so it lacks visual distinction.",
+          "recommendation": "Change the main title to a unique text (e.g., \"FlipperHub Login\") to differentiate it from the logo"
+        },
+        {
+          "severity": "suggestion",
+          "category": "layout",
+          "location": "logo section",
+          "description": "The logo section (dark rectangle) is too large, dominating the top space without clear purpose.",
+          "recommendation": "Reduce the size of the logo section or integrate it more seamlessly with the main content"
+        }
+      ],
+      "summary": "Redundant branding elements and small touch targets for mobile interactions reduce usability. Key improvements include refining visual hierarchy and ensuring accessible touch targets.",
+      "_raw": false,
+      "screenshot": "screenshots/home_mobile.png"
+    },
+    "Profile::desktop": {
+      "url": "https://test.flipperhub.app/profile.php",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "Below password field, above login button",
+          "description": "Misaligned 'Remember me' checkbox (left-aligned) and 'Forgot password?' link (right-aligned) create visual imbalance.",
+          "recommendation": "Align both elements to the left or center for consistent visual hierarchy."
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "Below password field",
+          "description": "Label 'Remember me' is smaller than 'USERNAME OR EMAIL' and 'PASSWORD' labels, reducing readability.",
+          "recommendation": "Increase font size of 'Remember me' label to match other field labels."
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "Next to 'Remember me' checkbox",
+          "description": "'Forgot password?' link lacks visual distinction (e.g., underline), making it indistinguishable from text.",
+          "recommendation": "Add underline or hover effect to 'Forgot password?' link to indicate it's interactive."
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "Between password input and checkbox",
+          "description": "Insufficient vertical spacing between password field and 'Remember me' checkbox.",
+          "recommendation": "Increase vertical spacing between password field and checkbox to improve readability."
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "Adjacent to checkbox",
+          "description": "'Forgot password?' link is not visually grouped with the checkbox, causing confusion.",
+          "recommendation": "Group 'Remember me' checkbox and 'Forgot password?' link with consistent spacing and alignment."
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "Between checkbox and link",
+          "description": "Horizontal spacing between 'Remember me' checkbox and 'Forgot password?' link is too tight.",
+          "recommendation": "Increase horizontal spacing between checkbox and link for better visual separation."
+        },
+        {
+          "severity": "suggestion",
+          "category": "components",
+          "location": "Orange login button",
+          "description": "Login button text 'LOGIN' is too small for the button size.",
+          "recommendation": "Increase font size of 'LOGIN' text to match button dimensions for better readability."
+        },
+        {
+          "severity": "suggestion",
+          "category": "typography",
+          "location": "Below main title",
+          "description": "'Tournament Management System' subtitle is too small, reducing readability.",
+          "recommendation": "Increase font size of subtitle to match main title hierarchy."
+        },
+        {
+          "severity": "suggestion",
+          "category": "layout",
+          "location": "Inside the card",
+          "description": "Card has inconsistent padding around form elements, affecting visual balance.",
+          "recommendation": "Standardize padding around form elements for consistent spacing."
+        },
+        {
+          "severity": "suggestion",
+          "category": "components",
+          "location": "Below password field",
+          "description": "'Remember me' checkbox is too small for easy interaction.",
+          "recommendation": "Increase checkbox size for better usability."
+        }
+      ],
+      "summary": "The login form has visual alignment and spacing issues that reduce usability, with minor typography adjustments needed for better hierarchy.",
+      "_raw": false,
+      "screenshot": "screenshots/profile_desktop.png"
+    },
+    "Manage users::desktop": {
+      "url": "https://test.flipperhub.app/manage_users.php",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "CREATE NEW USER section",
+          "description": "The CREATE NEW USER section is disproportionately large compared to EXISTING USERS, creating an unbalanced visual flow",
+          "recommendation": "Adjust section heights to balance content importance"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "CREATE NEW USER form",
+          "description": "The Role dropdown has no visible options, making it unclear what roles are available",
+          "recommendation": "Show a list of roles (e.g., \"User\", \"Admin\") in the dropdown"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "CREATE NEW USER form",
+          "description": "The note \"Admin-created users are pre-verified\" under Email (Optional) is misleading, as it implies email is required for verification",
+          "recommendation": "Clarify that email is optional and pre-verification applies to admin-created users"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "CREATE NEW USER form",
+          "description": "The Email (Optional) field's placeholder user@example.com is not clearly marked as optional",
+          "recommendation": "Add (Optional) next to the field label for clarity"
+        },
+        {
+          "severity": "suggestion",
+          "category": "typography",
+          "location": "EXISTING USERS search bar",
+          "description": "Placeholder text \"Search by username, display name, or email...\" is overly verbose and reduces readability",
+          "recommendation": "Shorten to \"Search...\" or \"Search users\""
+        },
+        {
+          "severity": "suggestion",
+          "category": "spacing",
+          "location": "CREATE NEW USER form",
+          "description": "Vertical spacing between form fields (e.g., between Email (Optional) and Password) is inconsistent",
+          "recommendation": "Standardize vertical spacing between input fields"
+        },
+        {
+          "severity": "suggestion",
+          "category": "visual-hierarchy",
+          "location": "EXISTING USERS table",
+          "description": "Table headers lack sufficient emphasis (e.g., bold text), making it hard to distinguish columns",
+          "recommendation": "Bold the header text for better visual hierarchy"
+        },
+        {
+          "severity": "suggestion",
+          "category": "components",
+          "location": "EXISTING USERS table",
+          "description": "Inconsistent spacing between Reset Password and Delete buttons within the Actions column",
+          "recommendation": "Align buttons vertically and add consistent spacing"
+        },
+        {
+          "severity": "suggestion",
+          "category": "typography",
+          "location": "CREATE NEW USER section",
+          "description": "The CREATE NEW USER heading uses uppercase text without clear hierarchy, reducing scannability",
+          "recommendation": "Use a larger font size or bold weight for the heading"
+        },
+        {
+          "severity": "suggestion",
+          "category": "layout",
+          "location": "Top header",
+          "description": "Back to Dashboard and Logout buttons are too close together, reducing usability",
+          "recommendation": "Increase horizontal spacing between these buttons"
+        }
+      ],
+      "summary": "The page has unbalanced layout, misleading component labels, and inconsistent spacing that reduce usability and visual clarity.",
+      "_raw": false,
+      "screenshot": "screenshots/manage_users_desktop.png"
+    },
+    "Manage users::mobile": {
+      "url": "https://test.flipperhub.app/manage_users.php",
+      "viewport": "mobile",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "below Email field",
+          "description": "The \"Admin-created users are pre-verified\" text is placed within the form area, disrupting standard information hierarchy",
+          "recommendation": "Move this text outside the form fields to a dedicated informational section above or below the form"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "below Email field",
+          "description": "The \"Admin-created users are pre-verified\" text is too small for mobile readability",
+          "recommendation": "Increase font size to at least 14px and ensure sufficient line height for readability"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "Role field",
+          "description": "The Role dropdown is too small for mobile touch targets (typical minimum is 48x48px)",
+          "recommendation": "Increase dropdown size to 56x56px and ensure sufficient tap area for mobile interaction"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between Display Name and Email fields",
+          "description": "Insufficient vertical spacing between form fields creates a cramped layout",
+          "recommendation": "Add 16px vertical spacing between all form fields to improve touch target accuracy"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "bottom of form",
+          "description": "The \"CREATE USER\" button lacks visual prominence compared to the \"Logout\" button",
+          "recommendation": "Make the \"CREATE USER\" button larger (56x56px) and use a more distinct color (e.g., primary brand color) for better visual hierarchy"
+        },
+        {
+          "severity": "warning",
+          "category": "responsive-fit",
+          "location": "all input fields",
+          "description": "Form fields (Username, Display Name, etc.) are too narrow for mobile touch targets",
+          "recommendation": "Increase input field width to 320px and ensure minimum 48px touch target size for all interactive elements"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "top header",
+          "description": "The \"Back to Dashboard\" button uses inconsistent styling (yellow) compared to the \"Logout\" button (red)",
+          "recommendation": "Standardize button styling with consistent color scheme (e.g., both primary color or both secondary color) for visual consistency"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "top header",
+          "description": "The \"USER MANAGEMENT\" header is too large for mobile, reducing form space",
+          "recommendation": "Reduce header font size to 20px and adjust spacing to prioritize form content"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between header and form",
+          "description": "Insufficient vertical spacing between header and form creates a cramped layout",
+          "recommendation": "Add 24px vertical spacing between header and form to improve visual breathing room"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "top header",
+          "description": "The \"Back to Dashboard\" button is less noticeable than the \"Logout\" button due to inconsistent styling",
+          "recommendation": "Use consistent visual weight for both buttons (e.g., same color intensity and size) to maintain visual hierarchy"
+        }
+      ],
+      "summary": "The page has multiple mobile usability issues including poor spacing, inconsistent component sizing, and suboptimal visual hierarchy that reduce touch target accuracy and readability.",
+      "_raw": false,
+      "screenshot": "screenshots/manage_users_mobile.png"
+    }
+  },
+  "errors": {
+    "Profile::mobile": {
+      "message": "Cloudflare 524 timeout — server took too long to respond.",
+      "timestamp": "2026-02-13T05:57:10.523Z"
+    }
+  },
+  "summary": {
+    "pages": 5,
+    "issues": 50,
+    "critical": 0,
+    "warning": 36,
+    "suggestion": 14
+  }
+}

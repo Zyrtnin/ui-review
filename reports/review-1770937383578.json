@@ -1,0 +1,154 @@
+{
+  "id": "review-1770937383578",
+  "baseUrl": "https://test.flipperhub.app",
+  "createdAt": "2026-02-12T23:03:03.579Z",
+  "updatedAt": "2026-02-12T23:03:03.579Z",
+  "status": "running",
+  "config": {
+    "model": "qwen3-vl:8b",
+    "viewports": [
+      "desktop",
+      "mobile"
+    ]
+  },
+  "pages": [
+    {
+      "name": "Home",
+      "path": "/"
+    },
+    {
+      "name": "Profile",
+      "path": "/profile.php"
+    },
+    {
+      "name": "Manage users",
+      "path": "/manage_users.php"
+    },
+    {
+      "name": "Login history",
+      "path": "/login_history.php"
+    },
+    {
+      "name": "Logout",
+      "path": "/logout.php"
+    },
+    {
+      "name": "Test ai config",
+      "path": "/test_ai_config.php"
+    },
+    {
+      "name": "Api",
+      "path": "/api.php"
+    },
+    {
+      "name": "Index",
+      "path": "/index.html"
+    },
+    {
+      "name": "Player portal simple",
+      "path": "/player_portal_simple.html"
+    },
+    {
+      "name": "Admin batch ai extract",
+      "path": "/admin_batch_ai_extract.php"
+    },
+    {
+      "name": "Check auth",
+      "path": "/check_auth.php"
+    },
+    {
+      "name": "Player dashboard",
+      "path": "/player_dashboard.php"
+    },
+    {
+      "name": "Login",
+      "path": "/login.php"
+    },
+    {
+      "name": "Index",
+      "path": "/index.php"
+    },
+    {
+      "name": "Setup mfa",
+      "path": "/setup_mfa.php"
+    },
+    {
+      "name": "Forgot password",
+      "path": "/forgot_password.php"
+    },
+    {
+      "name": "Tournament leaderboard",
+      "path": "/tournament_leaderboard.html"
+    },
+    {
+      "name": "Check login",
+      "path": "/check_login.php"
+    },
+    {
+      "name": "Player api",
+      "path": "/player_api.php"
+    },
+    {
+      "name": "Load player data",
+      "path": "/load_player_data.php"
+    },
+    {
+      "name": "Register player",
+      "path": "/register_player.php"
+    },
+    {
+      "name": "Upload score photo",
+      "path": "/upload_score_photo.php"
+    },
+    {
+      "name": "Player submit",
+      "path": "/player_submit.php"
+    },
+    {
+      "name": "Save draft submission",
+      "path": "/save_draft_submission.php"
+    },
+    {
+      "name": "Request unlock",
+      "path": "/request_unlock.php"
+    },
+    {
+      "name": "Cancel unlock request",
+      "path": "/cancel_unlock_request.php"
+    },
+    {
+      "name": "Retract submission",
+      "path": "/retract_submission.php"
+    },
+    {
+      "name": "Tournament api",
+      "path": "/tournament_api.php"
+    },
+    {
+      "name": "Player portal",
+      "path": "/player_portal.html"
+    },
+    {
+      "name": "Terms",
+      "path": "/terms.html"
+    },
+    {
+      "name": "Privacy",
+      "path": "/privacy.html"
+    },
+    {
+      "name": "Register",
+      "path": "/register.php"
+    }
+  ],
+  "totalExpected": 64,
+  "results": {},
+  "errors": {},
+  "summary": {
+    "pages": 0,
+    "issues": 0,
+    "critical": 0,
+    "warning": 0,
+    "suggestion": 0
+  }
+}

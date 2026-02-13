@@ -1,0 +1,29 @@
+{
+  "id": "review-1770962322111",
+  "baseUrl": "http://localhost:8081",
+  "createdAt": "2026-02-13T05:58:42.111Z",
+  "updatedAt": "2026-02-13T06:05:03.620Z",
+  "status": "error",
+  "config": {
+    "model": "qwen3-vl:8b",
+    "viewports": [
+      "desktop"
+    ]
+  },
+  "pages": [
+    {
+      "name": "Index",
+      "path": "/index.php"
+    }
+  ],
+  "totalExpected": 1,
+  "results": {},
+  "errors": {},
+  "summary": {
+    "pages": 0,
+    "issues": 0,
+    "critical": 0,
+    "warning": 0,
+    "suggestion": 0
+  }
+}

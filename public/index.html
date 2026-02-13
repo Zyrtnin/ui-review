@@ -409,6 +409,24 @@ let currentWatchReportId = null;  // active watch session report ID
 // Per-page actions storage: path → actions array
 const pageActions = new Map();
 
+// --- Cleanup on Tab Close ---
+// Cancel any active review when the tab is closed/navigated away.
+// This immediately signals the server to abort in-flight Ollama requests
+// and release GPU resources.
+window.addEventListener('beforeunload', () => {
+  if (currentReviewController) {
+    currentReviewController.abort();
+  }
+});
+
+// pagehide fires when the page is navigated away, closed, or backgrounded.
+// More reliable than beforeunload in some browsers.
+window.addEventListener('pagehide', () => {
+  if (currentReviewController) {
+    currentReviewController.abort();
+  }
+});
+
 // --- Init ---
 async function init() {
   renderPageTree();

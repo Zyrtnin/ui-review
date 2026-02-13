@@ -1,0 +1,74 @@
+{
+  "id": "review-1770959933550",
+  "baseUrl": "http://localhost:8081",
+  "createdAt": "2026-02-13T05:18:53.550Z",
+  "updatedAt": "2026-02-13T05:22:50.352Z",
+  "status": "complete",
+  "config": {
+    "model": "qwen3-vl:8b",
+    "viewports": [
+      "desktop"
+    ]
+  },
+  "pages": [
+    {
+      "name": "Home",
+      "path": "/"
+    }
+  ],
+  "totalExpected": 1,
+  "results": {
+    "Home::desktop": {
+      "url": "http://localhost:8081/",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "near 'Remember me' checkbox and 'Forgot password?' link",
+          "description": "'Forgot password?' link is not visually distinct from checkbox label and lacks link styling",
+          "recommendation": "Style as link (blue color, underline) and increase font size"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between 'Remember me' checkbox and 'Forgot password?' link",
+          "description": "Insufficient vertical spacing between checkbox and link",
+          "recommendation": "Increase vertical spacing between checkbox and link to 16px"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "'Remember me' checkbox",
+          "description": "Checkbox is too small for easy interaction",
+          "recommendation": "Increase checkbox size to standard UI size (e.g., 16x16px) with proper hit area"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "'Forgot password?' link",
+          "description": "Font size too small, not distinguishable from checkbox label",
+          "recommendation": "Increase font size to 14px and add underline to style as link"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "'LOGIN' button",
+          "description": "Button is too small, reducing visibility as primary action",
+          "recommendation": "Increase button height and width to standard primary button size (e.g., 48x48px)"
+        }
+      ],
+      "summary": "Login page has visual hierarchy and spacing issues that reduce usability. Key improvements include styling the 'Forgot password?' link as a proper link and adjusting component sizes.",
+      "_raw": false,
+      "screenshot": "screenshots/home_desktop.png"
+    }
+  },
+  "errors": {},
+  "summary": {
+    "pages": 1,
+    "issues": 5,
+    "critical": 0,
+    "warning": 5,
+    "suggestion": 0
+  }
+}

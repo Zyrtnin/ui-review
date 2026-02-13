@@ -618,9 +618,21 @@ async function runReview(req, res) {
   let aborted = false;
   const reviewAbort = new AbortController();
   const isWatchSession = watchMode || !!watchSession;
+
+  // Max lifetime timeout: 8 hours (480 min). If a review is abandoned or hangs,
+  // this ensures GPU resources are released even if client connection lingers.
+  const maxLifetimeMs = 8 * 60 * 60 * 1000;
+  const maxLifetimeTimeout = setTimeout(() => {
+    aborted = true;
+    clearInterval(keepaliveTimer);
+    reviewAbort.abort();  // Force abort to release GPU
+    try { res.end(); } catch {}
+  }, maxLifetimeMs);
+
   req.on('close', () => {
     aborted = true;
     clearInterval(keepaliveTimer);
+    clearTimeout(maxLifetimeTimeout);
     reviewAbort.abort();  // Cancel any in-flight Ollama request (stops GPU work)
     // Note: in watch mode, browser stays open — only GPU work is aborted
   });
@@ -874,6 +886,9 @@ async function runReview(req, res) {
     saveReport(report);
     try { sendEvent(res, 'error', { message: err.message }); } catch {};
   } finally {
+    // Clear the max lifetime timeout (review completed or errored before timeout)
+    clearTimeout(maxLifetimeTimeout);
+
     if (watchSession) {
       // Re-trigger complete — mark not in-progress but keep browser alive
       watchSession.reviewInProgress = false;

@@ -1,0 +1,97 @@
+{
+  "id": "review-1770965549837",
+  "baseUrl": "http://localhost:8081",
+  "createdAt": "2026-02-13T06:52:29.837Z",
+  "updatedAt": "2026-02-13T06:53:49.282Z",
+  "status": "complete",
+  "config": {
+    "model": "qwen3-vl:8b",
+    "viewports": [
+      "desktop"
+    ]
+  },
+  "pages": [
+    {
+      "name": "Login",
+      "path": "/login.php",
+      "actions": [
+        {
+          "wait": "input[type=text]"
+        },
+        {
+          "fill": "input[type=text]",
+          "value": "testuser"
+        }
+      ]
+    }
+  ],
+  "totalExpected": 1,
+  "results": {
+    "Login::desktop": {
+      "url": "http://localhost:8081/login.php",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "below password field, left of 'Forgot password?'",
+          "description": "'Remember me' checkbox is too small (hard to click)",
+          "recommendation": "Increase checkbox size to 20x20px or make it more clickable"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between password input and checkbox",
+          "description": "Vertical spacing between password field and checkbox is too tight",
+          "recommendation": "Add 8px vertical spacing"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "password input field",
+          "description": "Password field placeholder 'Enter your password' is unclear",
+          "recommendation": "Change to 'Password'"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "next to checkbox",
+          "description": "'Forgot password?' link is not visually distinct from checkbox",
+          "recommendation": "Style as a hyperlink (blue, underline) or add padding"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between checkbox and link",
+          "description": "Horizontal spacing between 'Remember me' checkbox and 'Forgot password?' link is too tight",
+          "recommendation": "Add 12px horizontal spacing"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "next to checkbox",
+          "description": "'Forgot password?' link is styled like a checkbox label",
+          "recommendation": "Style as a hyperlink (blue, underline)"
+        },
+        {
+          "severity": "suggestion",
+          "category": "typography",
+          "location": "username field label",
+          "description": "Username field label 'USERNAME OR EMAIL' is uppercase while password field placeholder is lowercase",
+          "recommendation": "Use consistent case (e.g., 'Username or Email')"
+        }
+      ],
+      "summary": "Login form has usability issues with checkbox size, spacing, and placeholder clarity; typography inconsistencies and visual hierarchy need improvement.",
+      "_raw": false,
+      "screenshot": "screenshots/login_desktop.png"
+    }
+  },
+  "errors": {},
+  "summary": {
+    "pages": 1,
+    "issues": 7,
+    "critical": 0,
+    "warning": 6,
+    "suggestion": 1
+  }
+}

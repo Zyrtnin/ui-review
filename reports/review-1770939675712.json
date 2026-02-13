@@ -1,0 +1,109 @@
+{
+  "id": "review-1770939675712",
+  "baseUrl": "http://localhost:8081",
+  "createdAt": "2026-02-12T23:41:15.712Z",
+  "updatedAt": "2026-02-12T23:42:15.053Z",
+  "status": "complete",
+  "config": {
+    "model": "qwen3-vl:8b",
+    "viewports": [
+      "desktop"
+    ]
+  },
+  "pages": [
+    {
+      "name": "Home",
+      "path": "/"
+    }
+  ],
+  "totalExpected": 1,
+  "results": {
+    "Home::desktop": {
+      "url": "http://localhost:8081/",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "top of the form (logo and main title)",
+          "description": "Duplicate branding with the logo (\"TRACK • COMPETE • WIN\") and main title \"FLIPPERHUB\" creates visual clutter",
+          "recommendation": "Remove the main title \"FLIPPERHUB\" below the logo, keeping only the logo"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "labels above input fields",
+          "description": "\"USERNAME OR EMAIL\" and \"PASSWORD\" labels are in uppercase but not bolded, reducing visual hierarchy",
+          "recommendation": "Bold the labels to distinguish them from input placeholders"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "below password field",
+          "description": "The \"Remember me\" checkbox is too small for easy interaction",
+          "recommendation": "Increase the checkbox size to 16x16px or larger"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between password input and checkbox",
+          "description": "Insufficient vertical spacing between the password field and the checkbox/link group",
+          "recommendation": "Add 8px vertical spacing between the password field and the checkbox/link"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "next to \"Remember me\" checkbox",
+          "description": "The \"Forgot password?\" link lacks visual distinction (e.g., underline), making it less noticeable",
+          "recommendation": "Style the link with an underline and hover effect"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "below checkbox/link group",
+          "description": "The login button has minimal padding, reducing tap target size",
+          "recommendation": "Increase button padding to 12px vertically and 24px horizontally"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "below main title",
+          "description": "The subtitle \"Tournament Management System\" is too small and not aligned with the main title",
+          "recommendation": "Increase subtitle font size to 14px and align it with the main title"
+        },
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "within the card",
+          "description": "Form elements are not centered within the card, creating asymmetrical alignment",
+          "recommendation": "Center-align all form elements within the card"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "below login button",
+          "description": "The footer text \"Secure Tournament Management\" is too small and not prominent",
+          "recommendation": "Increase footer text size to 12px and add a subtle underline"
+        },
+        {
+          "severity": "warning",
+          "category": "accessibility",
+          "location": "below password field",
+          "description": "The checkbox is too small, making it difficult to interact with for users with motor impairments",
+          "recommendation": "Increase checkbox size to 16x16px or larger"
+        }
+      ],
+      "summary": "Redundant branding and inconsistent typography reduce visual hierarchy, while insufficient spacing and small interactive elements hinder usability.",
+      "_raw": false,
+      "screenshot": "screenshots/home_desktop.png"
+    }
+  },
+  "errors": {},
+  "summary": {
+    "pages": 1,
+    "issues": 10,
+    "critical": 0,
+    "warning": 10,
+    "suggestion": 0
+  }
+}

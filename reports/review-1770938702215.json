@@ -1,0 +1,1133 @@
+{
+  "id": "review-1770938702215",
+  "baseUrl": "https://test.flipperhub.app",
+  "createdAt": "2026-02-12T23:25:02.215Z",
+  "updatedAt": "2026-02-12T23:41:20.333Z",
+  "status": "complete",
+  "config": {
+    "model": "qwen3-vl:8b",
+    "viewports": [
+      "desktop",
+      "mobile"
+    ]
+  },
+  "pages": [
+    {
+      "name": "Home",
+      "path": "/"
+    },
+    {
+      "name": "Profile",
+      "path": "/profile.php"
+    },
+    {
+      "name": "Manage users",
+      "path": "/manage_users.php"
+    },
+    {
+      "name": "Login history",
+      "path": "/login_history.php"
+    },
+    {
+      "name": "Logout",
+      "path": "/logout.php"
+    },
+    {
+      "name": "Index",
+      "path": "/index.html"
+    },
+    {
+      "name": "Player portal simple",
+      "path": "/player_portal_simple.html"
+    },
+    {
+      "name": "Check auth",
+      "path": "/check_auth.php"
+    },
+    {
+      "name": "Player dashboard",
+      "path": "/player_dashboard.php"
+    },
+    {
+      "name": "Login",
+      "path": "/login.php"
+    },
+    {
+      "name": "Index",
+      "path": "/index.php"
+    },
+    {
+      "name": "Setup mfa",
+      "path": "/setup_mfa.php"
+    },
+    {
+      "name": "Forgot password",
+      "path": "/forgot_password.php"
+    },
+    {
+      "name": "Tournament leaderboard",
+      "path": "/tournament_leaderboard.html"
+    },
+    {
+      "name": "Check login",
+      "path": "/check_login.php"
+    },
+    {
+      "name": "Player api",
+      "path": "/player_api.php"
+    },
+    {
+      "name": "Register player",
+      "path": "/register_player.php"
+    },
+    {
+      "name": "Tournament api",
+      "path": "/tournament_api.php"
+    },
+    {
+      "name": "Player portal",
+      "path": "/player_portal.html"
+    },
+    {
+      "name": "Terms",
+      "path": "/terms.html"
+    },
+    {
+      "name": "Privacy",
+      "path": "/privacy.html"
+    },
+    {
+      "name": "Register",
+      "path": "/register.php"
+    }
+  ],
+  "totalExpected": 44,
+  "results": {
+    "Home::desktop": {
+      "url": "https://test.flipperhub.app/",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "below logo banner",
+          "description": "Main title 'FLIPPERHUB' is redundant as the logo banner already displays the same name",
+          "recommendation": "Remove the main title to avoid duplication"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "below main title",
+          "description": "'Tournament Management System' subtitle is too small and not bolded, reducing visual hierarchy",
+          "recommendation": "Increase font size and apply bold to the subtitle"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between logo banner and main title",
+          "description": "Vertical spacing between logo banner and main title is too tight",
+          "recommendation": "Increase vertical padding between logo banner and title"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "to the right of checkbox",
+          "description": "'Forgot password?' link is positioned too close to the checkbox, creating a cramped layout",
+          "recommendation": "Align 'Forgot password?' link with the checkbox on the same line with appropriate spacing"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "below password field",
+          "description": "Vertical spacing between password input field and 'Remember me' checkbox is too small",
+          "recommendation": "Increase vertical padding between password field and checkbox"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "next to checkbox",
+          "description": "'Remember me' label text is smaller than input field labels, reducing consistency",
+          "recommendation": "Increase font size of 'Remember me' label to match input field labels"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "above input fields",
+          "description": "Input field labels ('USERNAME OR EMAIL', 'PASSWORD') are not bolded, making them less prominent",
+          "recommendation": "Apply bold styling to input field labels"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "below checkbox",
+          "description": "'LOGIN' button is too small for the primary action",
+          "recommendation": "Increase button height and width to match standard login button size"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "inside light container",
+          "description": "Container padding is too small, causing elements to feel cramped",
+          "recommendation": "Increase padding inside the light container to improve spacing"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "logo banner",
+          "description": "Logo banner text 'FLIPPERHUB' is too large and not aligned with the main title",
+          "recommendation": "Adjust logo banner text size and alignment to match the main title"
+        }
+      ],
+      "summary": "The login page has redundant elements, inconsistent spacing, and poor visual hierarchy that reduce usability and professionalism.",
+      "_raw": false,
+      "screenshot": "screenshots/home_desktop.png"
+    },
+    "Home::mobile": {
+      "url": "https://test.flipperhub.app/",
+      "viewport": "mobile",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "main title area (below logo)",
+          "description": "Redundant 'FLIPPERHUB' title duplicates logo text, confusing hierarchy",
+          "recommendation": "Remove main title or make it unique"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "below password field",
+          "description": "'Remember me' checkbox is too small for mobile touch targets",
+          "recommendation": "Increase size to 48x48px"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between password field and 'Remember me' checkbox",
+          "description": "Insufficient vertical spacing between password field and checkbox",
+          "recommendation": "Add 8-16px vertical space"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between 'Remember me' checkbox and 'Forgot password?' link",
+          "description": "Insufficient horizontal spacing between checkbox and link",
+          "recommendation": "Add 8-16px horizontal space"
+        },
+        {
+          "severity": "suggestion",
+          "category": "typography",
+          "location": "input fields",
+          "description": "Placeholder text ('Enter your username') is redundant with clear labels",
+          "recommendation": "Remove placeholders"
+        },
+        {
+          "severity": "suggestion",
+          "category": "typography",
+          "location": "below main title",
+          "description": "'Tournament Management System' subtitle is not prominent enough",
+          "recommendation": "Increase font size"
+        },
+        {
+          "severity": "suggestion",
+          "category": "components",
+          "location": "next to 'Remember me' checkbox",
+          "description": "'Forgot password?' link lacks visual distinction as a link",
+          "recommendation": "Style as a link (underline, color)"
+        }
+      ],
+      "summary": "Redundant title and small checkbox reduce usability; spacing and typography improvements enhance clarity.",
+      "_raw": false,
+      "screenshot": "screenshots/home_mobile.png"
+    },
+    "Profile::desktop": {
+      "url": "https://test.flipperhub.app/profile.php",
+      "viewport": "desktop",
+      "issues": [],
+      "summary": "The login form has inconsistent spacing, small typography, and misaligned components that reduce usability and visual hierarchy.",
+      "_raw": false,
+      "screenshot": "screenshots/profile_desktop.png"
+    },
+    "Profile::mobile": {
+      "url": "https://test.flipperhub.app/profile.php",
+      "viewport": "mobile",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "Top section (logo and main title)",
+          "description": "Logo and main title \"FLIPPERHUB\" are repeated, causing visual clutter",
+          "recommendation": "Remove the main title \"FLIPPERHUB\" below the logo"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "Below main title",
+          "description": "\"Tournament Management System\" is too small and lacks visual hierarchy",
+          "recommendation": "Increase font size to 16px or larger"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "Below password field",
+          "description": "\"Remember me\" checkbox is too small for mobile touch targets",
+          "recommendation": "Increase checkbox size to 44x44px minimum"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "Between password field and checkbox",
+          "description": "Insufficient vertical space between password field and checkbox",
+          "recommendation": "Add 16px vertical spacing"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "Title section",
+          "description": "Main title is overly large while subtitle is too small, disrupting visual flow",
+          "recommendation": "Adjust subtitle size to 16px or larger for better hierarchy"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "Next to checkbox",
+          "description": "\"Forgot password?\" link is not aligned with the checkbox",
+          "recommendation": "Align the link with the checkbox for consistent visual flow"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "Below input fields",
+          "description": "Login button has inconsistent spacing with input fields",
+          "recommendation": "Ensure 16px vertical spacing between input fields and button"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "Bottom of screen",
+          "description": "Footer text \"Secure Tournament Management...\" is too small",
+          "recommendation": "Increase font size to 14px or larger"
+        },
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "Top of screen",
+          "description": "Logo is not centered properly",
+          "recommendation": "Center the logo within the container"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "Bottom of screen",
+          "description": "Insufficient spacing between footer text and bottom edge",
+          "recommendation": "Add 16px vertical spacing"
+        }
+      ],
+      "summary": "Redundant title, inconsistent typography, and spacing issues reduce usability and visual hierarchy on the mobile login screen.",
+      "_raw": false,
+      "screenshot": "screenshots/profile_mobile.png"
+    },
+    "Manage users::desktop": {
+      "url": "https://test.flipperhub.app/manage_users.php",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "below password field, right of 'Remember me' checkbox",
+          "description": "Inconsistent alignment between 'Remember me' checkbox (left-aligned) and 'Forgot password?' link (right-aligned)",
+          "recommendation": "Align both elements to the left or right consistently"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "below main title 'FLIPPERHUB'",
+          "description": "Subtitle 'Tournament Management System' is too small, reducing visual hierarchy",
+          "recommendation": "Increase font size of subtitle to match main title's hierarchy"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "below password field, left of 'Forgot password?' link",
+          "description": "'Remember me' checkbox is too small and lacks visual weight",
+          "recommendation": "Increase checkbox size and add padding for better clickability"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between password input field and 'Remember me' checkbox",
+          "description": "Vertical spacing is too tight, making elements hard to distinguish",
+          "recommendation": "Increase vertical spacing between password field and checkbox"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "below checkbox and link",
+          "description": "Login button is too small for desktop interaction",
+          "recommendation": "Increase button size to ensure easy clickability on desktop"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between 'Remember me' checkbox and 'Forgot password?' link",
+          "description": "Horizontal spacing is too tight, making elements hard to read",
+          "recommendation": "Increase horizontal spacing between checkbox and link"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "next to 'Remember me' checkbox",
+          "description": "'Forgot password?' link font size is too small compared to input field labels",
+          "recommendation": "Increase font size of 'Forgot password?' link to match input field labels"
+        }
+      ],
+      "summary": "The login page has inconsistent alignment, insufficient visual hierarchy, and spacing issues that reduce usability. Key fixes include aligning elements, adjusting font sizes, and increasing component sizes for better desktop interaction.",
+      "_raw": false,
+      "screenshot": "screenshots/manage_users_desktop.png"
+    },
+    "Manage users::mobile": {
+      "url": "https://test.flipperhub.app/manage_users.php",
+      "viewport": "mobile",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "Below the logo",
+          "description": "Duplicate 'FLIPPERHUB' text appears below the logo, creating redundancy.",
+          "recommendation": "Remove the duplicate 'FLIPPERHUB' text to streamline the header."
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "Below the main 'FLIPPERHUB' title",
+          "description": "Subheading 'Tournament Management System' is too small and lacks visual hierarchy.",
+          "recommendation": "Increase font size to 16px and align with the logo's visual weight."
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "Below password field",
+          "description": "The 'Remember me' checkbox is too small for mobile touch targets.",
+          "recommendation": "Increase checkbox size to 48x48px for better usability."
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "Between 'Remember me' checkbox and 'Forgot password?' link",
+          "description": "Insufficient vertical spacing between the checkbox and link creates visual clutter.",
+          "recommendation": "Add 8px vertical spacing between the checkbox and link."
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "Below password field",
+          "description": "The 'LOGIN' button is too small, reducing its prominence.",
+          "recommendation": "Increase button height to 56px to match standard mobile button sizes."
+        },
+        {
+          "severity": "suggestion",
+          "category": "components",
+          "location": "Next to 'Remember me' checkbox",
+          "description": "The 'Forgot password?' link is too small for mobile interaction.",
+          "recommendation": "Increase link size to 48x48px for better touch target size."
+        },
+        {
+          "severity": "suggestion",
+          "category": "spacing",
+          "location": "Below 'LOGIN' button",
+          "description": "Insufficient vertical spacing between the 'LOGIN' button and footer text.",
+          "recommendation": "Add 16px vertical spacing between the button and footer."
+        }
+      ],
+      "summary": "The page has redundant text, inconsistent component sizing, and poor spacing that reduces mobile usability. Key fixes include removing duplicates, adjusting touch targets, and improving visual hierarchy.",
+      "_raw": false,
+      "screenshot": "screenshots/manage_users_mobile.png"
+    },
+    "Login history::desktop": {
+      "url": "https://test.flipperhub.app/login_history.php",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "top of form (logo banner)",
+          "description": "Logo banner 'FLIPPERHUB' with 'TRACK • COMPETE • WIN' is redundant with main heading 'FLIPPERHUB'",
+          "recommendation": "Remove logo banner or integrate it into main heading to avoid duplication"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "below main heading",
+          "description": "Subtitle 'Tournament Management System' is too small (likely 12px) compared to main heading",
+          "recommendation": "Increase subtitle font size to 14px for better visual hierarchy"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "below password field, left of 'Forgot password?' link",
+          "description": "'Remember me' checkbox is too small (likely 12x12px) for easy interaction",
+          "recommendation": "Increase checkbox size to 16x16px for better usability"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between password input and 'Remember me' checkbox",
+          "description": "Vertical spacing between password field and checkbox is too tight (likely <8px)",
+          "recommendation": "Add 8px top padding to checkbox container for comfortable interaction"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "orange login button",
+          "description": "'LOGIN' button text is too small (likely 14px) for primary call-to-action",
+          "recommendation": "Increase button text size to 16px to emphasize importance"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "right of 'Remember me' checkbox",
+          "description": "'Forgot password?' link is misaligned with form elements and lacks consistent spacing",
+          "recommendation": "Align link with checkbox and add 12px horizontal spacing for visual consistency"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "username and password input fields",
+          "description": "Placeholder text ('Enter your username', 'Enter your password') is too small (likely 12px)",
+          "recommendation": "Increase placeholder font size to 14px for better readability"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between 'Remember me' checkbox and 'Forgot password?' link",
+          "description": "Horizontal spacing between checkbox and link is too tight (likely <12px)",
+          "recommendation": "Add 12px horizontal spacing for comfortable interaction"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "below login button",
+          "description": "Footer text ('Secure Tournament Management', 'Powered by FlipperHub © 2025') is too small (likely 12px)",
+          "recommendation": "Increase footer font size to 12px for better visibility"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "orange login button",
+          "description": "Login button has insufficient vertical padding (likely <12px)",
+          "recommendation": "Add 12px vertical padding to button for better touch target size"
+        }
+      ],
+      "summary": "The login page has redundant branding, inconsistent spacing, and small text elements that reduce usability and visual hierarchy.",
+      "_raw": false,
+      "screenshot": "screenshots/login_history_desktop.png"
+    },
+    "Login history::mobile": {
+      "url": "https://test.flipperhub.app/login_history.php",
+      "viewport": "mobile",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "Top section (above 'Tournament Management System')",
+          "description": "Duplicate branding with top logo and main title both displaying 'FLIPPERHUB'",
+          "recommendation": "Remove top logo or consolidate branding to avoid redundancy"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "Below main title",
+          "description": "Subtitle 'Tournament Management System' is too small, reducing visual hierarchy",
+          "recommendation": "Increase font size to 16px for better emphasis"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "Below password field",
+          "description": "'Remember me' checkbox is too small for mobile touch targets",
+          "recommendation": "Increase checkbox size to 44x44px minimum for usability"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "Between password input and checkbox",
+          "description": "Insufficient vertical spacing between password field and 'Remember me' checkbox",
+          "recommendation": "Add 8-12px vertical spacing for better touch target separation"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "Above input fields",
+          "description": "Input field labels ('USERNAME OR EMAIL', 'PASSWORD') are in uppercase but font size is too small",
+          "recommendation": "Increase label font size to 14px or use bold for readability"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "Next to 'Remember me' checkbox",
+          "description": "'Forgot password?' link is positioned too close to the checkbox, causing confusion",
+          "recommendation": "Add 16px horizontal spacing between checkbox and link"
+        },
+        {
+          "severity": "warning",
+          "category": "accessibility",
+          "location": "Below password field",
+          "description": "'Remember me' checkbox lacks sufficient touch target size for mobile interaction",
+          "recommendation": "Ensure touch target is at least 44x44px for usability"
+        }
+      ],
+      "summary": "Redundant branding and inconsistent typography reduce visual hierarchy. Small touch targets and tight spacing hinder mobile usability.",
+      "_raw": false,
+      "screenshot": "screenshots/login_history_mobile.png"
+    },
+    "Logout::desktop": {
+      "url": "https://test.flipperhub.app/logout.php",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "below password field, between 'Remember me' checkbox and 'Forgot password?' link",
+          "description": "Insufficient horizontal spacing between checkbox and link",
+          "recommendation": "Increase horizontal spacing between them"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "next to 'Remember me' checkbox",
+          "description": "'Forgot password?' link lacks visual distinction from checkbox",
+          "recommendation": "Add underline or different color to indicate it's a link"
+        },
+        {
+          "severity": "suggestion",
+          "category": "typography",
+          "location": "below logo",
+          "description": "Subtitle 'Tournament Management System' is too small",
+          "recommendation": "Increase font size of subtitle"
+        },
+        {
+          "severity": "suggestion",
+          "category": "spacing",
+          "location": "below password field, above login button",
+          "description": "Insufficient vertical spacing between password field and login button",
+          "recommendation": "Increase vertical spacing between them"
+        },
+        {
+          "severity": "suggestion",
+          "category": "components",
+          "location": "below password field",
+          "description": "'Remember me' checkbox label is not aligned with checkbox",
+          "recommendation": "Align checkbox and label to the left"
+        },
+        {
+          "severity": "suggestion",
+          "category": "layout",
+          "location": "centered card",
+          "description": "Card is too wide for desktop viewport",
+          "recommendation": "Reduce card width to 80% of viewport"
+        },
+        {
+          "severity": "suggestion",
+          "category": "typography",
+          "location": "username and password input fields",
+          "description": "Placeholder text is too small",
+          "recommendation": "Increase font size of placeholder text"
+        },
+        {
+          "severity": "suggestion",
+          "category": "visual-hierarchy",
+          "location": "below password field",
+          "description": "Login button is overly prominent",
+          "recommendation": "Reduce button size or adjust color intensity"
+        },
+        {
+          "severity": "suggestion",
+          "category": "spacing",
+          "location": "above username input field",
+          "description": "Insufficient vertical spacing between 'USERNAME OR EMAIL' label and input field",
+          "recommendation": "Increase vertical spacing between label and input"
+        },
+        {
+          "severity": "suggestion",
+          "category": "components",
+          "location": "next to 'Remember me' checkbox",
+          "description": "'Forgot password?' link is not styled as a link",
+          "recommendation": "Add underline or hover effect to indicate it's a link"
+        }
+      ],
+      "summary": "Login form has spacing and visual hierarchy issues affecting usability; typography and component styling need refinement for better user experience.",
+      "_raw": false,
+      "screenshot": "screenshots/logout_desktop.png"
+    },
+    "Logout::mobile": {
+      "url": "https://test.flipperhub.app/logout.php",
+      "viewport": "mobile",
+      "issues": [
+        {
+          "severity": "critical",
+          "category": "layout",
+          "location": "entire page",
+          "description": "URL is logout.php but displays a login form, making it unusable for logout",
+          "recommendation": "Redirect to the correct logout page or adjust content to match URL"
+        },
+        {
+          "severity": "critical",
+          "category": "components",
+          "location": "below password field",
+          "description": "\"LOGIN\" button is present on a logout page, confusing users",
+          "recommendation": "Change button text to \"LOGOUT\""
+        },
+        {
+          "severity": "warning",
+          "category": "accessibility",
+          "location": "entire page",
+          "description": "Login form lacks logout functionality",
+          "recommendation": "Add a logout button or redirect to logout page"
+        },
+        {
+          "severity": "suggestion",
+          "category": "typography",
+          "location": "below logo",
+          "description": "Redundant \"FLIPPERHUB\" title below logo",
+          "recommendation": "Remove the title for cleaner branding"
+        },
+        {
+          "severity": "suggestion",
+          "category": "components",
+          "location": "below password field",
+          "description": "\"Remember me\" checkbox is unnecessary for a logout page",
+          "recommendation": "Remove the checkbox"
+        },
+        {
+          "severity": "suggestion",
+          "category": "spacing",
+          "location": "below password field",
+          "description": "\"Forgot password?\" link is too close to the checkbox",
+          "recommendation": "Increase spacing between checkbox and link"
+        },
+        {
+          "severity": "suggestion",
+          "category": "visual-hierarchy",
+          "location": "entire page",
+          "description": "Login form is presented as main content on a logout page, confusing users",
+          "recommendation": "Adjust content to match URL"
+        }
+      ],
+      "summary": "Critical URL/content mismatch and incorrect button text prevent logout functionality; redundant branding and unnecessary components reduce usability.",
+      "_raw": false,
+      "screenshot": "screenshots/logout_mobile.png"
+    },
+    "Index::desktop": {
+      "url": "https://test.flipperhub.app/index.html",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "Logo banner and main title",
+          "description": "Redundant text in logo banner and main title creates visual clutter",
+          "recommendation": "Remove the logo banner's text or rephrase the main title to avoid duplication"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "Below password input field",
+          "description": "\"Remember me\" checkbox is too small, making it difficult to interact with accurately",
+          "recommendation": "Increase the checkbox size to standard dimensions (e.g., 16x16px) and ensure it's easily clickable"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "Between password input field and \"Remember me\" section",
+          "description": "Insufficient vertical spacing between password input and checkbox/link creates visual clutter",
+          "recommendation": "Add more vertical space (e.g., 12px) between the password input and the checkbox/link section"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "Next to \"Remember me\" checkbox",
+          "description": "\"Forgot password?\" link is visually understated, reducing discoverability",
+          "recommendation": "Increase the font size of the link to match the label size and add a subtle underline"
+        },
+        {
+          "severity": "suggestion",
+          "category": "typography",
+          "location": "Above input fields",
+          "description": "Labels \"USERNAME OR EMAIL\" and \"PASSWORD\" are in uppercase with small font size, reducing readability",
+          "recommendation": "Adjust label font size to 14px and use sentence case for better readability"
+        },
+        {
+          "severity": "suggestion",
+          "category": "components",
+          "location": "Below checkbox/link section",
+          "description": "\"LOGIN\" button lacks visual prominence",
+          "recommendation": "Add a subtle shadow or border to the button to enhance its prominence"
+        },
+        {
+          "severity": "suggestion",
+          "category": "visual-hierarchy",
+          "location": "Below logo banner",
+          "description": "Main title \"FLIPPERHUB\" is disproportionately large compared to the subtitle",
+          "recommendation": "Reduce the font size of the main title to match the subtitle's scale"
+        },
+        {
+          "severity": "suggestion",
+          "category": "components",
+          "location": "Below password input field",
+          "description": "\"Remember me\" checkbox is not clearly associated with the password field",
+          "recommendation": "Align the checkbox and link with the input fields for better visual grouping"
+        }
+      ],
+      "summary": "Redundant text and inconsistent spacing reduce usability; key fixes include removing duplication, adjusting spacing, and improving visual hierarchy for better user experience.",
+      "_raw": false,
+      "screenshot": "screenshots/index_desktop.png"
+    },
+    "Index::mobile": {
+      "url": "https://test.flipperhub.app/index.html",
+      "viewport": "mobile",
+      "issues": [],
+      "summary": "Redundant branding and inconsistent typography reduce visual hierarchy, while small touch targets and generic placeholders hinder mobile usability.",
+      "_raw": false,
+      "screenshot": "screenshots/index_mobile.png"
+    },
+    "Player portal simple::desktop": {
+      "url": "https://test.flipperhub.app/player_portal_simple.html",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "center below error message",
+          "description": "\"Try Again\" button is too small for desktop interaction (mouse click target)",
+          "recommendation": "Increase button size to at least 48x48px"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "center below icon",
+          "description": "Error message text is too small (likely <16px), reducing readability",
+          "recommendation": "Increase font size to 16px or larger"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "top center",
+          "description": "Loading icon (:-() ) is non-standard and may confuse users",
+          "recommendation": "Replace with a standard spinner or loading indicator"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between error message and button",
+          "description": "Insufficient vertical spacing between error message and button",
+          "recommendation": "Add 16px vertical padding above the button"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "error message area",
+          "description": "Error message lacks emphasis (e.g., bold or larger font)",
+          "recommendation": "Bold the error message text or increase font size"
+        }
+      ],
+      "summary": "Multiple UI/UX issues including small button size, unreadable text, unclear loading indicator, and poor spacing reduce user confidence and usability.",
+      "_raw": false,
+      "screenshot": "screenshots/player_portal_simple_desktop.png"
+    },
+    "Player portal simple::mobile": {
+      "url": "https://test.flipperhub.app/player_portal_simple.html",
+      "viewport": "mobile",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "centered text below sad face icon",
+          "description": "Error message text is too small for mobile readability",
+          "recommendation": "Increase font size to at least 16px"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "yellow 'Try Again' button",
+          "description": "Button label lacks context and is generic",
+          "recommendation": "Change label to 'Rescan QR Code' to clarify action"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "between sad face icon and error message text",
+          "description": "Vertical spacing is too tight, reducing readability",
+          "recommendation": "Increase vertical spacing to 16px"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "button area",
+          "description": "Button is not visually distinct enough as the primary action",
+          "recommendation": "Increase button size to 48x48px and use a more distinct color"
+        },
+        {
+          "severity": "warning",
+          "category": "responsive-fit",
+          "location": "button",
+          "description": "Button touch target is too small for mobile interaction",
+          "recommendation": "Ensure button is at least 48x48px for touch targets"
+        }
+      ],
+      "summary": "Error message text is too small, button label lacks context, and touch targets are insufficient for mobile usability.",
+      "_raw": false,
+      "screenshot": "screenshots/player_portal_simple_mobile.png"
+    },
+    "Check auth::desktop": {
+      "url": "https://test.flipperhub.app/check_auth.php",
+      "viewport": "desktop",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "Below logo banner",
+          "description": "Redundant \"FLIPPERHUB\" heading creates visual clutter",
+          "recommendation": "Remove the duplicate main heading below the logo banner"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "Below main heading",
+          "description": "\"Tournament Management System\" subtitle is too small to establish hierarchy",
+          "recommendation": "Increase font size to 1.25rem"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "Below password field",
+          "description": "\"Remember me\" checkbox is visually indistinct",
+          "recommendation": "Increase checkbox size to 1.5rem"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "Right of checkbox",
+          "description": "Insufficient horizontal spacing between \"Remember me\" and \"Forgot password?\" link",
+          "recommendation": "Add 1rem horizontal spacing between checkbox and link"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "Inside input fields",
+          "description": "Placeholder text (\"Enter your username\", \"Enter your password\") is hard to read",
+          "recommendation": "Increase placeholder font size to 0.9rem"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "Below login button",
+          "description": "\"Powered by FlipperHub © 2025\" copyright text is too small",
+          "recommendation": "Increase font size to 0.8rem"
+        }
+      ],
+      "summary": "Redundant headings, inconsistent typography, and insufficient spacing reduce usability and visual hierarchy.",
+      "_raw": false,
+      "screenshot": "screenshots/check_auth_desktop.png"
+    },
+    "Check auth::mobile": {
+      "url": "https://test.flipperhub.app/check_auth.php",
+      "viewport": "mobile",
+      "issues": [
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "Below the logo",
+          "description": "Duplicate 'FLIPPERHUB' title appears below the logo, creating redundancy",
+          "recommendation": "Remove the duplicate 'FLIPPERHUB' title below the logo"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "Below main title",
+          "description": "'Tournament Management System' subtitle is too small and lacks visual hierarchy",
+          "recommendation": "Increase font size to 16px and align with main title"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "Below password field",
+          "description": "'Remember me' checkbox is too small for mobile touch targets",
+          "recommendation": "Increase checkbox size to 48x48px"
+        },
+        {
+          "severity": "warning",
+          "category": "spacing",
+          "location": "Between 'USERNAME OR EMAIL' and 'PASSWORD' fields",
+          "description": "Inconsistent vertical spacing between form fields disrupts visual rhythm",
+          "recommendation": "Standardize vertical spacing to 16px between fields"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "Next to 'Remember me' checkbox",
+          "description": "'Forgot password?' link is too small and not visually distinct",
+          "recommendation": "Increase font size to 14px and add underline for better visibility"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "Above input fields",
+          "description": "'USERNAME OR EMAIL' and 'PASSWORD' labels are too small",
+          "recommendation": "Increase label font size to 14px for better readability"
+        },
+        {
+          "severity": "warning",
+          "category": "typography",
+          "location": "Bottom of page",
+          "description": "Footer text 'Secure Tournament Management...' is too small",
+          "recommendation": "Increase footer font size to 12px"
+        },
+        {
+          "severity": "warning",
+          "category": "layout",
+          "location": "Around form fields",
+          "description": "Inconsistent padding around form fields creates visual imbalance",
+          "recommendation": "Standardize padding to 16px around all form elements"
+        },
+        {
+          "severity": "warning",
+          "category": "visual-hierarchy",
+          "location": "Below password field",
+          "description": "'Remember me' checkbox lacks visual prominence",
+          "recommendation": "Add a descriptive label for better visual hierarchy"
+        },
+        {
+          "severity": "warning",
+          "category": "components",
+          "location": "Login button",
+          "description": "'LOGIN' button text is too small for mobile readability",
+          "recommendation": "Increase button text font size to 18px"
+        }
+      ],
+      "summary": "Redundant title, inconsistent spacing, and small touch targets reduce usability; typography and visual hierarchy need refinement for mobile.",
+      "_raw": false,
+      "screenshot": "screenshots/check_auth_mobile.png"
+    }
+  },
+  "errors": {
+    "Player dashboard::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/player_dashboard.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:17.306Z"
+    },
+    "Player dashboard::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/player_dashboard.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:17.330Z"
+    },
+    "Login::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/login.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:17.354Z"
+    },
+    "Login::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/login.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:17.377Z"
+    },
+    "Index::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/index.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:17.664Z"
+    },
+    "Index::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/index.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:17.690Z"
+    },
+    "Setup mfa::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/setup_mfa.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:18.073Z"
+    },
+    "Setup mfa::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/setup_mfa.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:18.371Z"
+    },
+    "Forgot password::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/forgot_password.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:18.408Z"
+    },
+    "Forgot password::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/forgot_password.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:18.433Z"
+    },
+    "Tournament leaderboard::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/tournament_leaderboard.html: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:18.457Z"
+    },
+    "Tournament leaderboard::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/tournament_leaderboard.html: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:18.480Z"
+    },
+    "Check login::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/check_login.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:18.500Z"
+    },
+    "Check login::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/check_login.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:18.520Z"
+    },
+    "Player api::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/player_api.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:18.542Z"
+    },
+    "Player api::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/player_api.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:18.817Z"
+    },
+    "Register player::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/register_player.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:19.101Z"
+    },
+    "Register player::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/register_player.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:19.126Z"
+    },
+    "Tournament api::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/tournament_api.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:19.167Z"
+    },
+    "Tournament api::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/tournament_api.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:19.192Z"
+    },
+    "Player portal::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/player_portal.html: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:19.236Z"
+    },
+    "Player portal::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/player_portal.html: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:19.599Z"
+    },
+    "Terms::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/terms.html: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:19.788Z"
+    },
+    "Terms::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/terms.html: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:19.837Z"
+    },
+    "Privacy::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/privacy.html: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:19.866Z"
+    },
+    "Privacy::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/privacy.html: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:19.900Z"
+    },
+    "Register::desktop": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/register.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:20.300Z"
+    },
+    "Register::mobile": {
+      "message": "Screenshot capture failed for https://test.flipperhub.app/register.php: page.setViewportSize: Target page, context or browser has been closed",
+      "timestamp": "2026-02-12T23:41:20.325Z"
+    }
+  },
+  "summary": {
+    "pages": 16,
+    "issues": 109,
+    "critical": 2,
+    "warning": 86,
+    "suggestion": 21
+  }
+}
