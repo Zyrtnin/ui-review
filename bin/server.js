@@ -167,6 +167,23 @@ function listReports() {
     .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
 }
 
+/** On startup, mark any "running" reports as "interrupted" (server was killed mid-review). */
+function cleanupStaleReports() {
+  if (!existsSync(REPORTS_DIR)) return;
+  for (const f of readdirSync(REPORTS_DIR).filter(f => f.endsWith('.json'))) {
+    try {
+      const filePath = join(REPORTS_DIR, f);
+      const data = JSON.parse(readFileSync(filePath, 'utf8'));
+      if (data.status === 'running') {
+        data.status = 'interrupted';
+        data.updatedAt = new Date().toISOString();
+        writeFileSync(filePath, JSON.stringify(data, null, 2));
+      }
+    } catch {}
+  }
+}
+cleanupStaleReports();
+
 /** Execute a login flow using Playwright and return storageState. */
 async function executeLogin({ baseUrl, loginUrl, username, password, allowPrivate = false }) {
   const { chromium } = await import('playwright');
