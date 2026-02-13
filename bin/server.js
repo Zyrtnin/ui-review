@@ -163,7 +163,7 @@ async function executeLogin({ baseUrl, loginUrl, username, password, allowPrivat
     await page.goto(fullLoginUrl, { waitUntil: 'networkidle', timeout: 15000 });
 
     // Auto-detect form fields
-    const usernameField = await page.$('input[type="text"], input[name*="user"], input[name*="email"], input[id*="user"], input[name*="login"]');
+    const usernameField = await page.$('input[type="text"], input[type="email"], input[name*="user"], input[name*="email"], input[id*="user"], input[name*="login"]');
     const passwordField = await page.$('input[type="password"]');
     const submitButton = await page.$('button[type="submit"], input[type="submit"]');
 
