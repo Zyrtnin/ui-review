@@ -585,7 +585,8 @@ async function runReview(req, res) {
     watchSession.reviewInProgress = true;
   } else if (watchMode) {
     try {
-      sharedBrowser = await launchBrowser({ headless: false });
+      const forceHeadless = !process.env.DISPLAY;
+      sharedBrowser = await launchBrowser({ headless: forceHeadless });
       const ctx = await sharedBrowser.newContext({
         ignoreHTTPSErrors: true,
         ...(authState ? { storageState: authState } : {}),
